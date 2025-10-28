@@ -9,5 +9,5 @@ class SavingGoals(db.Model):
     target_date = db.Column(db.Date, nullable=False)
     current_amount = db.Column(db.Float, nullable=False, default=1.0)
     created_at = db.Column(db.DateTime, default=dt.now())
-
+    remarks = db.Column(db.String(255))
     users = db.relationship("Users", foreign_keys=[user_id], backref=db.backref('saving_goals', lazy=True, cascade='all, delete-orphan'))

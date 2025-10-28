@@ -11,6 +11,8 @@ from app.model.m_Income import Income
 from app.model.m_SavingGoals import SavingGoals
 from app.model.m_SavingTransactions import SavingTransactions
 from app.model.m_Users import Users
+from app.routes.r_users import users
+from flask_session import Session
 
 
 def generate_tables(app):
@@ -21,9 +23,10 @@ def generate_tables(app):
 def create_app():
     app = Flask(__name__)
     app.config.from_object(ApplicationConfig)
+    app.register_blueprint(users)
     db.init_app(app)
     migrate = Migrate(app, db)
-
+    session = Session(app)
     generate_tables(app)
 
     return app
