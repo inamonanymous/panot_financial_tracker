@@ -16,12 +16,13 @@ class CategoriesService:
         except SQLAlchemyError as e:
             db.session.rollback()
             print(e)
+            return None
 
-    def get_category_by_id(self, id):
+    def get_category_by_id(self, id: int) -> object:
         return Categories.query.filter_by(id=id).first()
     
-    def get_all_categories(self):
-        return Categories.query.all()
+    def get_all_categories_by_user(self, user_id: int) -> list:
+        return Categories.query.filter_by(user_id=user_id).all()
     
     def edit_category(self, id: int, name: str) -> object:
         try:

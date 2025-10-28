@@ -1,6 +1,13 @@
+import os
+from dotenv import load_dotenv
 from app.ext import db
-class ApplicationConfig:
-    SQLALCHEMY_DATABASE_URI = 'mysql://root:@localhost:3306/finance_tracker'
-    SECRET_KEY = 'happynation'
-    SESSION_TYPE = 'sqlalchemy'
 
+load_dotenv()
+
+class ApplicationConfig:
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')
+    SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret')
+    SESSION_TYPE = os.getenv('SESSION_TYPE', 'sqlalchemy')
+    SESSION_SQLALCHEMY = db
+    SESSION_PERMANENT = os.getenv('SESSION_PERMANENT', 'False').lower() == 'true'
+    SESSION_USE_SIGNER = os.getenv('SESSION_USE_SIGNER', 'True').lower() == 'true'

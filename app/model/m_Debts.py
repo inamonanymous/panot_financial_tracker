@@ -9,7 +9,6 @@ class Debts(db.Model):
     interest_rate = db.Column(db.Float, nullable=False)
     start_date = db.Column(db.Date)
     due_date = db.Column(db.Date)
-    interest_rate = db.Column(db.Float, nullable=False)
     status = db.Column(db.Enum("active", "closed"), default="active")
     created_at = db.Column(db.DateTime, default=dt.now())
 
