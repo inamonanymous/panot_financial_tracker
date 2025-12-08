@@ -24,3 +24,8 @@ class DebtPaymentsService:
             db.session.rollback()
             print(f"Error inserting debt payments: {e}")
             return None
+        
+    def get_debt_payment_by_id(self, id: int):
+        return DebtPayments.query.filter_by(id=id).first()
+    
+#    def get_all_categories_by_user(self, user_id: int)

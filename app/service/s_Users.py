@@ -1,9 +1,11 @@
 from app.service import check_password_hash, generate_password_hash, db
 from app.model.m_Users import Users
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from app.utils.exceptions.ServiceError import ServiceError
+from app.service.BaseService import BaseService
 from app.ext import dt
 
-class UserService:
+class UserService(BaseService):
     def check_login(self, email, password):
         user = Users.query.filter_by(
             email=email.strip()
@@ -12,34 +14,67 @@ class UserService:
             return None
         return user
     
-    def insert_user(user_data: dict) -> object:
-        try:
-            # Basic validation
-            required_fields = ['firstname', 'lastname', 'email', 'password']
-            for field in required_fields:
-                if field not in user_data or not str(user_data[field]).strip():
-                    raise ValueError(f"Missing or empty field: {field}")
+    """     def insert_user(user_data: dict) -> object:
+            try:
+                # Basic validation
+                required_fields = ['firstname', 'lastname', 'email', 'password']
+                for field in required_fields:
+                    if field not in user_data or not str(user_data[field]).strip():
+                        raise ValueError(f"Missing or empty field: {field}")
 
-            # Hash the password securely
-            hashed_password = generate_password_hash(user_data['password'].strip())
+                # Hash the password securely
+                hashed_password = generate_password_hash(user_data['password'].strip())
 
-            # Create user object
-            user_entry = Users(
-                firstname=user_data['firstname'].strip(),
-                lastname=user_data['lastname'].strip(),
-                email=user_data['email'].strip().lower(),
-                password_hash=hashed_password
-            )
+                # Create user object
+                user_entry = Users(
+                    firstname=user_data['firstname'].strip(),
+                    lastname=user_data['lastname'].strip(),
+                    email=user_data['email'].strip().lower(),
+                    password_hash=hashed_password
+                )
 
-            # Add and commit
-            db.session.add(user_entry)
-            db.session.commit()
-            return user_entry
-        except (SQLAlchemyError, ValueError) as e:
-            db.session.rollback()
-            print(f"Error inserting user: {e}")
-            return None
+                # Add and commit
+                db.session.add(user_entry)
+                db.session.commit()
+                return user_entry
+            except (SQLAlchemyError, ValueError) as e:
+                db.session.rollback()
+                print(f"Error inserting user: {e}")
+                return None
+    """        
+
+    def insert_user(self, user_data: dict) -> object:
+        """ 
+        Creates a new user with validated and clean data
+
+        Param: user_data: dict
+        Return: User object instance
+        """
+
+        user_data['firstname'] = self.validate_string(user_data['firstname'], "Firstname", min_len=2)
+        user_data['lastname']  = self.validate_string(user_data['lastname'], "Lastname",  min_len=2)
+        user_data['email']     = self.validate_email_string(user_data['email'])
+        user_data['password_hash']  = self.validate_password_string(
+                        user_data['password_hash'],
+                        confirm=user_data.get('password2'),
+                        min_len=8
+                    )
         
+        hashed_password = generate_password_hash(user_data['password_hash'].strip())
+        user_data['password_hash'] = hashed_password
+
+        clean = self.create_resource(
+            user_data,
+            required=['firstname', 'lastname', 'email', 'password_hash'],
+            allowed=['firstname', 'lastname', 'email', 'password_hash']
+        )
+
+
+        new_user = Users(**clean)
+
+        return self.safe_execute(lambda: self._save(new_user),
+                                    error_message="Failed to create Userw")
+
     def get_user_by_id(id: int) -> object:
         return Users.query.filter_by(id=id).first()
     
@@ -91,3 +126,23 @@ class UserService:
         except SQLAlchemyError as e:
             print(e)
             return False
+        
+
+    def _save(self, instance):
+        try:
+            db.session.add(instance)
+            db.session.commit()
+            return instance
+
+        except IntegrityError as e:
+            db.session.rollback()
+            message = str(e.orig)
+
+            if "email" in message:
+                raise ServiceError("Email already exists. Please use another one")
+            print(message)
+            raise ServiceError("User database constraint error")
+
+        except Exception:
+            db.session.rollback()
+            raise ServiceError("Unexpected database error in UserService")
