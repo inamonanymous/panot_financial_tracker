@@ -7,11 +7,19 @@ from app.ext import dt
 
 class UserService(BaseService):
     def check_login(self, email, password):
+        email = self.validate_email_string(email)
+        password = self.validate_password_string(
+                        password,
+                        confirm=None,
+                        min_len=8
+                    )
         user = Users.query.filter_by(
-            email=email.strip()
+            email=email
         ).first()
-        if not (user and check_password_hash(user.password_hash, password.strip())):
-            return None
+        if not (user and check_password_hash(user.password_hash, password)):
+            raise ServiceError("Incorrect Credentials!")
+
+
         return user
     
     """     def insert_user(user_data: dict) -> object:

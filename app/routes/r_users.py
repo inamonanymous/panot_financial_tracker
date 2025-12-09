@@ -13,22 +13,44 @@ users = Blueprint(
 def require_user_session(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if 'user_username' not in session:
-            return redirect(url_for('main.index'))
+        if 'user_email' not in session:
+            return redirect(url_for('users.index'))
         return f(*args, **kwargs) 
     return wrapper
 
-@users.route('/')
+@users.route('/', methods=['GET'])
 def index():
-    return render_template('public/login.html')
+    return redirect(url_for('users.login'))
 
 @users.route('/login', methods=['POST', 'GET'])
 def login():
-    return redirect(url_for('users.dashboard'))
+    if request.method != 'POST':
+        email = request.args.get('email') if request.args.get('email') else None
+        error_message = request.args.get('error_message') if request.args.get('error_message') else None
+        return render_template('public/login.html', email=email, error_message=error_message)
+    
+    try:
+        args = request.form
+        user = US_INS.check_login(
+            args['email'],
+            args['password']
+        )
+        session['user_email'] = user.email
+        return redirect(url_for('users.dashboard'))
+    except ServiceError as e:
+        return redirect(url_for('users.login', error_message=str(e)))
 
 @users.route('/dashboard')
+@require_user_session
 def dashboard():
+    
     return render_template('auth/dashboard.html')
+
+@users.route('/logout')
+@require_user_session
+def logout():
+    session.pop('user_email')
+    return redirect(url_for('users.index'))
 
 @users.route('/registration', methods=['POST', 'GET'])
 def registration():
@@ -50,9 +72,9 @@ def registration():
     
     try:
         new_user = US_INS.insert_user(user_data)
-        return redirect(url_for('users.index'))
+        return redirect(url_for('users.index', email = new_user.email))
     except ServiceError as e:
-        print(type(e))
+        
 
         return render_template('public/register.html', error_message=str(e))
     
