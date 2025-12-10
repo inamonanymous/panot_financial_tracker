@@ -86,6 +86,9 @@ class UserService(BaseService):
     def get_user_by_id(id: int) -> object:
         return Users.query.filter_by(id=id).first()
     
+    def get_user_by_email(self, email: str) -> object:
+        return Users.query.filter_by(email=email).first()
+    
     def get_all_users():
         return Users.query.all()
     
