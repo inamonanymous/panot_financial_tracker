@@ -18,6 +18,16 @@ def require_user_session(f):
         return f(*args, **kwargs) 
     return wrapper
 
+def get_current_user():
+    x = session.get('user_email')
+    print(x)
+    print(type(x))
+    if 'user_email' in session:
+        return US_INS.get_user_by_email(session.get('user_email'))
+    else:
+        raise ServiceError('No user in session')
+
+
 @users.route('/', methods=['GET'])
 def index():
     return redirect(url_for('users.login'))
@@ -44,7 +54,7 @@ def login():
 @require_user_session
 def dashboard():
     
-    return render_template('auth/dashboard.html')
+    return render_template('auth/pages/dashboard.html', user=get_current_user())
 
 @users.route('/logout')
 @require_user_session
@@ -58,10 +68,7 @@ def registration():
         return render_template('public/register.html')
     
     args = request.form
-    """ 
-        if args['password'] != args['password2']:
-            return render_template('public/register.html', error_message="Passwords doesn't match")
- """
+
     user_data = {
         'firstname': args['firstname'],
         'lastname': args['lastname'],
@@ -74,9 +81,5 @@ def registration():
         new_user = US_INS.insert_user(user_data)
         return redirect(url_for('users.index', email = new_user.email))
     except ServiceError as e:
-        
-
         return render_template('public/register.html', error_message=str(e))
-    
-
     

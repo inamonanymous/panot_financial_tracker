@@ -12,6 +12,7 @@ from app.model.m_SavingGoals import SavingGoals
 from app.model.m_SavingTransactions import SavingTransactions
 from app.model.m_Users import Users
 from app.routes.r_users import users
+from app.routes.r_income import income
 from flask_session import Session
 
 
@@ -24,6 +25,7 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(ApplicationConfig)
     app.register_blueprint(users)
+    app.register_blueprint(income)
     db.init_app(app)
     migrate = Migrate(app, db)
     session = Session(app)
