@@ -8,7 +8,7 @@ class Expenses(db.Model):
     payee = db.Column(db.String(32), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     expense_date = db.Column(db.DateTime, default=dt.now())
-    payment_method = db.Column(db.Enum("cash", "gcash", "bank", "card", "other"), nullable=True)
+    payment_method = db.Column(db.Enum("cash", "gcash", "bank", "card", "other"), nullable=True, default="cash")
     remarks = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=dt.now())
 
