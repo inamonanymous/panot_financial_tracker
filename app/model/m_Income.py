@@ -8,6 +8,7 @@ class Income(db.Model):
     source = db.Column(db.String(55), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     received_date = db.Column(db.Date, default=dt.now().date)
+    payment_method = db.Column(db.Enum("cash", "gcash", "bank", "card", "other"), nullable=True, default="cash")
     remarks = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=dt.now())
 
