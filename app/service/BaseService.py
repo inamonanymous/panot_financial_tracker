@@ -173,6 +173,29 @@ class BaseService(ABC):
 
         return password
 
+    # ---------------------------
+    # 9. UPDATE RESOURCE CLEANER
+    # ---------------------------
+    def update_resource(self, data: dict, *, allowed: list):
+        """
+        INPUT CLEANER FOR UPDATE / EDIT REQUESTS
+
+        PROCESS:
+        1. Normalize string fields
+        2. Remove unwanted fields
+        3. Ensure at least one valid field is being updated
+        """
+
+        if not data:
+            raise ServiceError("No data provided for update")
+
+        normalized = self.normalize_strings(data)
+        filtered = self.filter_allowed_fields(normalized, allowed)
+
+        if not filtered:
+            raise ServiceError("No valid fields provided for update")
+
+        return filtered
 
     def _save(self, instance):
         db.session.add(instance)

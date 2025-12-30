@@ -22,34 +22,6 @@ class UserService(BaseService):
 
         return user
     
-    """     def insert_user(user_data: dict) -> object:
-            try:
-                # Basic validation
-                required_fields = ['firstname', 'lastname', 'email', 'password']
-                for field in required_fields:
-                    if field not in user_data or not str(user_data[field]).strip():
-                        raise ValueError(f"Missing or empty field: {field}")
-
-                # Hash the password securely
-                hashed_password = generate_password_hash(user_data['password'].strip())
-
-                # Create user object
-                user_entry = Users(
-                    firstname=user_data['firstname'].strip(),
-                    lastname=user_data['lastname'].strip(),
-                    email=user_data['email'].strip().lower(),
-                    password_hash=hashed_password
-                )
-
-                # Add and commit
-                db.session.add(user_entry)
-                db.session.commit()
-                return user_entry
-            except (SQLAlchemyError, ValueError) as e:
-                db.session.rollback()
-                print(f"Error inserting user: {e}")
-                return None
-    """        
 
     def insert_user(self, user_data: dict) -> object:
         """ 
