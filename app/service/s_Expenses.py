@@ -44,11 +44,11 @@ class ExpenseService(BaseService):
     # -----------------------------------------------------
     # UPDATE EXPENSE
     # -----------------------------------------------------
-    def edit_income(self, user_id, income_id, data: dict) -> object:
-        target_income = self.get_expense_by_user_and_id(income_id, user_id)
+    def edit_expense(self, user_id, income_id, data: dict) -> object:
+        target_expense = self.get_expense_by_user_and_id(income_id, user_id)
 
-        if target_income is None:
-            raise ServiceError("No income record found")
+        if target_expense is None:
+            raise ServiceError("No expense record found")
         
         clean = self.update_resource(
             data,
@@ -56,13 +56,13 @@ class ExpenseService(BaseService):
         )
 
         if clean["payee"]:
-            target_income.payee = clean["source"]
+            target_expense.payee = clean["payee"]
         if clean["payment_method"]:
-            target_income.payment_method = clean["payment_method"]
+            target_expense.payment_method = clean["payment_method"]
         if clean["remarks"]:
-            target_income.remarks = clean["remarks"]
+            target_expense.remarks = clean["remarks"]
 
-        return self.safe_execute(lambda: self._save(target_income),
+        return self.safe_execute(lambda: self._save(target_expense),
                                  error_message="Failed to update expense")
     
     # -----------------------------------------------------
