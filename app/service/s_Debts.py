@@ -88,8 +88,8 @@ class DebtsService(BaseService):
     # DELETE DEBT
     # -----------------------------------------------------
 
-    def delete_debt(self, id: int) -> bool:
-        debt = self.get_debt_by_id(id)
+    def delete_debt(self, id: int, user_id: int) -> bool:
+        debt = self.get_debt_by_user_and_id(id, user_id)
 
         return self.safe_execute(
             lambda: self._delete(debt),
