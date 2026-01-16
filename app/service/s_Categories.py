@@ -69,6 +69,9 @@ class CategoriesService(BaseService):
             allowed=["name"]       # only allow editing name
         )
 
+        if clean["name"] is None:
+            raise ServiceError("Name shouldn't be empy")
+
         category.name = clean["name"]
 
         return self.safe_execute(lambda: self._save(category),

@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, session, url_for, request
 from functools import wraps
-from app.service import US_INS
+from app.service import US_INS, IN_INS
 from app.utils.exceptions.ServiceError import ServiceError
 
 users = Blueprint(
@@ -53,8 +53,8 @@ def login():
 @users.route('/dashboard')
 @require_user_session
 def dashboard():
-    
-    return render_template('auth/pages/dashboard.html', user=get_current_user())
+    user = get_current_user()
+    return render_template('auth/pages/dashboard.html', user=get_current_user(), total_income=IN_INS.calculate_total_income_by_userid(int(user.id)))
 
 @users.route('/logout')
 @require_user_session
