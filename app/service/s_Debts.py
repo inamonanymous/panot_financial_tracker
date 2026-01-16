@@ -12,7 +12,20 @@ class DebtsService(BaseService):
     def insert_debt(self, data: dict) -> object:
         """
         Creates a new debt with validated and cleaned data.
+
+        Param:
+            data: Dictionary
+                * user_id : String
+                * lender : String 
+                * principal : Float 
+                * interest_rate : Float 
+                * start_date : Date 
+                * due_date : Date 
+                * min_payment : Float  
+        Return: 
+            Debts Instance
         """
+        
         clean = self.create_resource(
             data,
             required=[
@@ -51,7 +64,7 @@ class DebtsService(BaseService):
     # -----------------------------------------------------
     # GET DEBT BY ID AND USER ID
     # -----------------------------------------------------
-    def get_debt_by_user_and_id(self, debt_id:int, user_id: int) -> object: 
+    def get_debt_by_id_and_userid(self, debt_id:int, user_id: int) -> object: 
         return Debts.query.filter_by(id=debt_id, user_id=user_id).first()
         
     # -----------------------------------------------------
@@ -64,7 +77,18 @@ class DebtsService(BaseService):
     # UPDATE DEBT
     # -----------------------------------------------------
     def edit_debt(self, debt_id: int, user_id: int, data: dict) -> object:
-        target_debt = self.get_debt_by_user_and_id(debt_id)
+        """ 
+            Updates debt record by id and user_id
+            
+            Param:
+                data: Dictionary
+                    * lender : String
+                    * principal : Float
+                    * interest_rate : Float
+            Return:
+                Debts Instance        
+        """
+        target_debt = self.get_debt_by_id_and_userid(debt_id, user_id)
 
         if target_debt is None:
             raise ServiceError("No debt record found")
@@ -87,9 +111,8 @@ class DebtsService(BaseService):
     # -----------------------------------------------------
     # DELETE DEBT
     # -----------------------------------------------------
-
     def delete_debt(self, id: int, user_id: int) -> bool:
-        debt = self.get_debt_by_user_and_id(id, user_id)
+        debt = self.get_debt_by_id_and_userid(id, user_id)
 
         return self.safe_execute(
             lambda: self._delete(debt),

@@ -2,30 +2,95 @@ from app.service import db
 from app.model.m_DebtPayments import DebtPayments
 from sqlalchemy.exc import SQLAlchemyError
 from app.ext import dt
+from app.utils.exceptions import ServiceError
+from app.service.BaseService import BaseService
 
-class DebtPaymentsService:
-    def insert_debt_payments(self, user_id: int, debt_payment_data: dict) -> object:
-        try:
-            required_fields = ['lender', 'principal', 'interest_rate', 'start_date', 'due_date']
-            for field in required_fields:
-                if field not in required_fields:
-                    raise ValueError(f"Missing or empty field: {field}")
-            debt_payment_entry = DebtPayments(
-                lender=debt_payment_data['lender'],
-                principal=debt_payment_data['principal'],
-                intereset_rate=debt_payment_data['interest_rate'],
-                start_date=debt_payment_data['start_date'],
-                due_date=debt_payment_data['due_date'],
-            )    
-            db.session.add(debt_payment_data)
-            db.session.commit()
-            return debt_payment_entry
-        except (SQLAlchemyError, ValueError) as e:
-            db.session.rollback()
-            print(f"Error inserting debt payments: {e}")
-            return None
+class DebtPaymentsService(BaseService):
+    # -----------------------------------------------------
+    # CREATE DEBT PAYMENTS
+    # -----------------------------------------------------   
+    def insert_debt_payments(self, data: dict) -> object:
+        """ 
+        Creates a new debt payment with validated and cleaned data.
+        """
+        clean = self.create_resource(
+            data,
+            required=[
+                "lender"
+                "principal",
+                "interest_rate",
+                "start_date",
+                "due_date"
+            ],
+            allowed=[
+                "lender"
+                "principal",
+                "interest_rate",
+                "start_date",
+                "due_date"
+            ]
+        )
+
+        new_debt_payment = DebtPayments(**clean)
+
+        return self.safe_execute(
+            lambda: self._save(new_debt_payment),
+            error_message="Failed to create debt"
+        )
         
-    def get_debt_payment_by_id(self, id: int):
+    # -----------------------------------------------------
+    # GET DEBT_PAYMENT BY ID
+    # -----------------------------------------------------
+    def get_debt_payment_by_id(self, id: int) -> object:
         return DebtPayments.query.filter_by(id=id).first()
+
+    # -----------------------------------------------------
+    # GET DEBT_PAYMENT BY ID AND USER ID
+    # -----------------------------------------------------
+    def get_debt_payment_by_id_and_userid(self, id: int, user_id: int) -> object:
+        return DebtPayments.query.filter_by(id=id, user_id=user_id).first()
     
-#    def get_all_categories_by_user(self, user_id: int)
+    # -----------------------------------------------------
+    # GET ALL DEBT_PAYMENTS BY USER
+    # -----------------------------------------------------
+    def get_all_debt_payments_by_user(self, user_id: int) -> object:
+        return DebtPayments.query.filter_by(user_id=user_id).all()
+    
+    
+    # -----------------------------------------------------
+    # UPDATE DEBT_PAYMENT
+    # -----------------------------------------------------
+    """ 
+        payment_date:
+        remarks
+    """
+    def edit_debt_payment(self, id: int, user_id: int, data: dict) -> object:
+        target_debt_payment = self.get_debt_payment_by_id_and_userid(id, user_id)
+
+        if target_debt_payment is None: 
+            raise ServiceError("No debt payment record is found")
+        
+        clean = self.update_resource(
+            data,
+            allowed=["payment_date", "remarks"]
+        )
+
+        if clean["payment_date"]:
+            target_debt_payment.payment_date = clean["payment_date"]
+        if clean["remarks"]:
+            target_debt_payment.remarks = clean["remarks"]
+        
+        return self.safe_execute(lambda: self._save(target_debt_payment),
+                                 error_message="Failed to update debt payment")
+
+
+    # -----------------------------------------------------
+    # DELETE DEBT PAYMENT
+    # -----------------------------------------------------
+    def delete_debt_payment(self, id: int, user_id: int) -> bool:
+        debt_payment = self.get_debt_payment_by_id_and_userid(id, user_id)
+
+        return self.safe_execute(
+            lambda: self._delete(debt_payment),
+            error_message="Failed to delete debt payment"
+        )

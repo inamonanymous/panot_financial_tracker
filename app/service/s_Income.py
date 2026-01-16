@@ -32,7 +32,7 @@ class IncomeService(BaseService):
 
     # GET INCOME BY ID AND USER ID
     # -----------------------------------------------------        
-    def get_income_by_user_and_id(self, income_id, user_id) -> object:
+    def get_income_by_id_and_userid(self, income_id, user_id) -> object:
         return Income.query.filter_by(id=income_id, user_id=user_id).first()
     
     # -----------------------------------------------------
@@ -45,7 +45,7 @@ class IncomeService(BaseService):
     # UPDATE INCOME
     # ----------------------------------------------------- 
     def edit_income(self, user_id, income_id, data: dict) -> object:
-        target_income = self.get_income_by_user_and_id(income_id, user_id)        
+        target_income = self.get_income_by_id_and_userid(income_id, user_id)        
 
         if target_income is None:
             raise ServiceError("No income record found")
@@ -69,7 +69,7 @@ class IncomeService(BaseService):
     # DELETE INCOME
     # ----------------------------------------------------- 
     def delete_income(self, income_id, user_id) -> bool:
-        income = self.get_income_by_user_and_id(income_id, user_id)
+        income = self.get_income_by_id_and_userid(income_id, user_id)
 
         return self.safe_execute(
             lambda: self._delete(income),
