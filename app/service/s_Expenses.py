@@ -32,7 +32,7 @@ class ExpenseService(BaseService):
     # -----------------------------------------------------
     # GET EXPENSE BY ID and USER ID
     # -----------------------------------------------------
-    def get_expense_by_user_and_id(self, expense_id, user_id) -> object:
+    def get_expenses_by_id_and_userid(self, expense_id, user_id) -> object:
         return Expenses.query.filter_by(id=expense_id, user_id=user_id).first()
 
     # -----------------------------------------------------
@@ -45,7 +45,7 @@ class ExpenseService(BaseService):
     # UPDATE EXPENSE
     # -----------------------------------------------------
     def edit_expense(self, user_id, income_id, data: dict) -> object:
-        target_expense = self.get_expense_by_user_and_id(income_id, user_id)
+        target_expense = self.get_expenses_by_id_and_userid(income_id, user_id)
 
         if target_expense is None:
             raise ServiceError("No expense record found")
@@ -69,7 +69,7 @@ class ExpenseService(BaseService):
     # DELETE EXPENSE
     # -----------------------------------------------------
     def delete_expense(self, expense_id, user_id) -> bool:
-        expense = self.get_expense_by_user_and_id(expense_id, user_id)
+        expense = self.get_expenses_by_id_and_userid(expense_id, user_id)
 
         return self.safe_execute(
             lambda: self._delete(expense),

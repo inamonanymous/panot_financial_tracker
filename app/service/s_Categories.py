@@ -5,13 +5,20 @@ from app.service.BaseService import BaseService
 
 
 class CategoriesService(BaseService):
-
     # -----------------------------------------------------
     # CREATE CATEGORY
     # -----------------------------------------------------
     def insert_category(self, data: dict) -> object:
         """
         Creates a new category with validated and cleaned data.
+
+        Param:
+            data: Dictionary
+                * user_id : String
+                * type : Enum("income", "expense") 
+                * name : String  
+        Return: 
+            Category Instance
         """
 
         clean = self.create_resource(
@@ -26,15 +33,17 @@ class CategoriesService(BaseService):
                                  error_message="Failed to create category")
 
     # -----------------------------------------------------
-    # GET CATEGORY
+    # GET CATEGORY BY ID
     # -----------------------------------------------------
     def get_category_by_id(self, category_id: int) -> object:
-        category = Categories.query.filter_by(id=category_id).first()
+        return Categories.query.filter_by(id=category_id).first()
 
-        if not category:
-            raise ServiceError(f"Category-{category_id} not found")
-
-        return category
+    
+    # -----------------------------------------------------
+    # GET CATEGORY BY ID AND USER ID
+    # -----------------------------------------------------
+    def get_category_by_id_and_userid(self, category_id: int, user_id: int) -> object:
+        return Categories.query.filter_by(id=category_id, user_id=user_id).first()
 
     def get_all_categories_by_user(self, user_id: int) -> list:
         return Categories.query.filter_by(user_id=user_id).all()
@@ -43,7 +52,15 @@ class CategoriesService(BaseService):
     # UPDATE CATEGORY
     # -----------------------------------------------------
     def edit_category(self, category_id: int, data: dict) -> object:
+        """
+        Updates category record with validated and cleaned data.
 
+        Param:
+            data: Dictionary
+                * name : String  
+        Return: 
+            Category Instance
+        """
         category = self.get_category_by_id(category_id)
 
         clean = self.create_resource(
