@@ -3,6 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.ext import dt
 from app.utils.exceptions import ServiceError
 from app.service.BaseService import BaseService
+from sqlalchemy import func
 
 class IncomeService(BaseService):
     # -----------------------------------------------------
@@ -75,4 +76,13 @@ class IncomeService(BaseService):
             lambda: self._delete(income),
             error_message="Failed to delete income"
         )
-    
+
+
+    def calculate_total_income_by_userid(self, user_id: int) -> float:
+        total = (
+            Income.query
+            .with_entities(func.coalesce(func.sum(Income.amount), 0))
+            .filter(Income.user_id == user_id)
+            .scalar()
+        )
+        return float(total)

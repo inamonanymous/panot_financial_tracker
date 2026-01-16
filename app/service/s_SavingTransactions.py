@@ -86,7 +86,6 @@ class SavingTransactionsService(BaseService):
     # -----------------------------------------------------
     # DELETE SAVING TRANSACTION
     # -----------------------------------------------------
-
     def delete_saving_transaction(self, id: int, user_id: int) -> bool:
         saving_transaction = self.get_saving_transaction_by_id_and_userid(id, user_id)
 
@@ -94,5 +93,6 @@ class SavingTransactionsService(BaseService):
             lambda: self._delete(saving_transaction),
             error_message="Failed to delete saving_transaction"
         )  
+    
         
         
