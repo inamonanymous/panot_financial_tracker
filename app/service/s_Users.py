@@ -1,9 +1,14 @@
 from app.service import check_password_hash, generate_password_hash, db
 from app.model.m_Users import Users
+from app.model.m_Income import Income
+from app.model.m_Expenses import Expenses
+from app.model.m_SavingTransactions import SavingTransactions
+from app.model.m_DebtPayments import DebtPayments
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from app.utils.exceptions.ServiceError import ServiceError
 from app.service.BaseService import BaseService
 from app.ext import dt
+from sqlalchemy import func
 
 class UserService(BaseService):
     def check_login(self, email, password):
@@ -110,6 +115,46 @@ class UserService(BaseService):
             print(e)
             return False
         
+
+    def calculate_current_amount_by_userid(self, user_id: int) -> float:
+        total_income = (
+            Income.query
+            .with_entities(func.coalesce(func.sum(Income.amount), 0))
+            .filter(Income.user_id == user_id)
+            .scalar()
+        )
+        
+        total_expense = (
+            Expenses.query
+            .with_entities(func.coalesce(func.sum(Expenses.amount), 0))
+            .filter(Expenses.user_id == user_id)
+            .scalar()
+        )
+        
+        total_debt_payments = (
+            DebtPayments.query
+            .with_entities(func.coalesce(func.sum(DebtPayments.amount), 0))
+            .filter(DebtPayments.user_id == user_id)
+            .scalar()
+        )
+        
+        total_saving_deposits = (
+            SavingTransactions.query
+            .with_entities(func.coalesce(func.sum(SavingTransactions.amount), 0))
+            .filter(SavingTransactions.user_id == user_id)
+            .filter(SavingTransactions.txt_type == "deposit")
+            .scalar()
+        )
+
+        current_value = (
+            total_income
+            - total_expense
+            - total_debt_payments
+            - total_saving_deposits
+        )
+
+        return float(current_value)
+
 
     def _save(self, instance):
         try:
