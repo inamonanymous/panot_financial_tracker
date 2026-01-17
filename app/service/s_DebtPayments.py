@@ -4,6 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.ext import dt
 from app.utils.exceptions import ServiceError
 from app.service.BaseService import BaseService
+from sqlalchemy import func
 
 class DebtPaymentsService(BaseService):
     # -----------------------------------------------------
@@ -94,3 +95,12 @@ class DebtPaymentsService(BaseService):
             lambda: self._delete(debt_payment),
             error_message="Failed to delete debt payment"
         )
+    
+    def calculate_total_debt_payments_by_userid(self, user_id: int) -> float:
+        total = (
+            DebtPayments.query
+            .with_entities(func.coalesce(func.sum(DebtPayments.amount), 0))
+            .filter(DebtPayments.user_id == user_id)
+            .scalar()
+        )
+        return float(total)

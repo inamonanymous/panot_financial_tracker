@@ -3,6 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.ext import dt
 from app.utils.exceptions import ServiceError
 from app.service.BaseService import BaseService
+from sqlalchemy import func
 
 class SavingTransactionsService(BaseService):
     # -----------------------------------------------------
@@ -94,5 +95,23 @@ class SavingTransactionsService(BaseService):
             error_message="Failed to delete saving_transaction"
         )  
     
+    def calculate_total_saving_deposits_by_userid(self, user_id: int) -> float:
+        total = (
+            SavingTransactions.query
+            .with_entities(func.coalesce(func.sum(SavingTransactions.amount), 0))
+            .filter(SavingTransactions.user_id == user_id)
+            .filter(SavingTransactions.txt_type == "deposit")
+            .scalar()
+        )
+        return float(total)
         
+    def calculate_total_saving_withdraws_by_userid(self, user_id: int) -> float:
+        total = (
+            SavingTransactions.query
+            .with_entities(func.coalesce(func.sum(SavingTransactions.amount), 0))
+            .filter(SavingTransactions.user_id == user_id)
+            .filter(SavingTransactions.txt_type == "withdraw")
+            .scalar()
+        )
+        return float(total)
         

@@ -3,7 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.ext import dt
 from app.utils.exceptions import ServiceError
 from app.service.BaseService import BaseService
-
+from sqlalchemy import func
 
 class DebtsService(BaseService):
     # -----------------------------------------------------
@@ -118,3 +118,14 @@ class DebtsService(BaseService):
             lambda: self._delete(debt),
             error_message="Failed to delete debt"
         )
+    
+    def calculate_total_debts_by_userid(self, user_id: int) -> float:
+        total = (
+            Debts.query
+            .with_entities(func.coalesce(func.sum(Debts.principal), 0))
+            .filter(Debts.user_id == user_id)
+            .filter(Debts.status == "active")
+            .scalar()
+        )
+
+        return float(total)

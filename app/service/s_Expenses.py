@@ -3,6 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.ext import dt
 from app.utils.exceptions import ServiceError
 from app.service.BaseService import BaseService
+from sqlalchemy import func
 
 class ExpenseService(BaseService):
     # -----------------------------------------------------
@@ -75,3 +76,13 @@ class ExpenseService(BaseService):
             lambda: self._delete(expense),
             error_message="Failed to delete expense"
         )
+    
+
+    def calculate_total_expense_by_userid(self, user_id: int) -> float:
+        total = (
+            Expenses.query
+            .with_entities(func.coalesce(func.sum(Expenses.amount), 0))
+            .filter(Expenses.user_id == user_id)
+            .scalar()
+        )
+        return float(total)

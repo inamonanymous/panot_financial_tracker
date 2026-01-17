@@ -1,31 +1,14 @@
 from flask import Blueprint, render_template, redirect, session, url_for, request
 from functools import wraps
-from app.service import US_INS, IN_INS
+from app.service import US_INS, IS_INS, ES_INS, DS_INS, DPS_INS, STS_INS
 from app.utils.exceptions.ServiceError import ServiceError
-
+from app.routes.functions import require_user_session, get_current_user
 users = Blueprint(
     'users',
     __name__,
     template_folder='templates',
     static_folder='static'
 )
-
-def require_user_session(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        if 'user_email' not in session:
-            return redirect(url_for('users.index'))
-        return f(*args, **kwargs) 
-    return wrapper
-
-def get_current_user():
-    x = session.get('user_email')
-    print(x)
-    print(type(x))
-    if 'user_email' in session:
-        return US_INS.get_user_by_email(session.get('user_email'))
-    else:
-        raise ServiceError('No user in session')
 
 
 @users.route('/', methods=['GET'])
@@ -54,7 +37,13 @@ def login():
 @require_user_session
 def dashboard():
     user = get_current_user()
-    return render_template('auth/pages/dashboard.html', user=get_current_user(), total_income=IN_INS.calculate_total_income_by_userid(int(user.id)))
+    return render_template('auth/pages/dashboard.html', 
+                           user=get_current_user(), 
+                           total_income=IS_INS.calculate_total_income_by_userid(int(user.id)),
+                           total_expense=ES_INS.calculate_total_expense_by_userid(int(user.id)),
+                           total_saving_transactions=STS_INS.calculate_total_saving_deposits_by_userid(int(user.id)),
+                           user_total_value=US_INS.calculate_current_amount_by_userid(int(user.id))
+                           )
 
 @users.route('/logout')
 @require_user_session
