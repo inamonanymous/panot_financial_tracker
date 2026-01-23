@@ -15,8 +15,8 @@ class ExpenseService(BaseService):
         """
         clean = self.create_resource(
             data,
-            required=["category_id", "payee", "amount", "expense_date", "payment_method"],
-            allowed=["category_id", "payee", "amount", "expense_date", "payment_method", "remarks"]
+            required=["user_id", "category_id", "payee", "amount", "expense_date", "payment_method"],
+            allowed=["user_id", "category_id", "payee", "amount", "expense_date", "payment_method", "remarks"]
         )
 
         new_expense = Expenses(**clean)
@@ -53,9 +53,12 @@ class ExpenseService(BaseService):
         
         clean = self.update_resource(
             data,
-            allowed=["payee", "payment_method", "remarks"]
+            allowed=["category_id", "payee", "payment_method", "remarks"]
         )
 
+        if clean["category_id"]:
+            #should have category checker
+            target_expense.category_id = clean["category_id"]
         if clean["payee"]:
             target_expense.payee = clean["payee"]
         if clean["payment_method"]:

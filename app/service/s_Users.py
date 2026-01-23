@@ -9,11 +9,13 @@ from app.utils.exceptions.ServiceError import ServiceError
 from app.service.BaseService import BaseService
 from app.ext import dt
 from sqlalchemy import func
+from app.policies import UserPolicy_INS
+
 
 class UserService(BaseService):
     def check_login(self, email, password):
-        email = self.validate_email_string(email)
-        password = self.validate_password_string(
+        email = UserPolicy_INS.validate_email_string(email)
+        password = UserPolicy_INS.validate_password_string(
                         password,
                         confirm=None,
                         min_len=8
@@ -36,24 +38,7 @@ class UserService(BaseService):
         Return: User object instance
         """
 
-        user_data['firstname'] = self.validate_string(user_data['firstname'], "Firstname", min_len=2)
-        user_data['lastname']  = self.validate_string(user_data['lastname'], "Lastname",  min_len=2)
-        user_data['email']     = self.validate_email_string(user_data['email'])
-        user_data['password_hash']  = self.validate_password_string(
-                        user_data['password_hash'],
-                        confirm=user_data.get('password2'),
-                        min_len=8
-                    )
-        
-        hashed_password = generate_password_hash(user_data['password_hash'].strip())
-        user_data['password_hash'] = hashed_password
-
-        clean = self.create_resource(
-            user_data,
-            required=['firstname', 'lastname', 'email', 'password_hash'],
-            allowed=['firstname', 'lastname', 'email', 'password_hash']
-        )
-
+        clean = UserPolicy_INS.validate_registration(user_data)
 
         new_user = Users(**clean)
 

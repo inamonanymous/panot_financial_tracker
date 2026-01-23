@@ -17,3 +17,8 @@ income = Blueprint(
 def income_page():
     user = get_current_user()
     return render_template("auth/pages/income.html", user=user, all_income=IS_INS.get_all_income_by_user(user.id))
+
+@require_user_session
+@income.route('/income')
+def insert_income():
+    pass

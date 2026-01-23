@@ -15,8 +15,8 @@ class IncomeService(BaseService):
         """
         clean = self.create_resource(
             data,
-            required=["category_id", "source", "amount", "payment_method"],
-            allowed=["category_id", "source", "amount", "remarks", "payment_method"]
+            required=["user_id", "category_id", "source", "amount", "payment_method"],
+            allowed=["user_id", "category_id", "source", "amount", "remarks", "payment_method"]
         )
         
         new_income = Income(**clean)
@@ -53,9 +53,12 @@ class IncomeService(BaseService):
 
         clean = self.update_resource(
             data,
-            allowed=["source", "remarks"]
+            allowed=["category_id", "source", "payment_method","remarks"]
         )
 
+        if clean["category_id"]:
+            #should have category_checker
+            target_income.category_id = clean["category_id"]
         if clean["source"]:
             target_income.source = clean["source"]
         if clean["remarks"]:
