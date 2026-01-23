@@ -30,9 +30,11 @@ This project follows a **layered architecture**:
 ```
 Routes (Controllers)
    ↓
-Services (Business Logic)
+Services (Application Layer)
    ↓
-Models (SQLAlchemy ORM)
+Policies (Business Rules/Validation Layer)
+   ↓
+Models (Persistence Layer)
    ↓
 Database
 ```
@@ -41,7 +43,9 @@ Database
 
 * Clean separation of concerns
 * Easier testing and maintenance
-* Business rules stay out of routes
+* Use cases or Application layer (Services) stay out of HTTP Requests (Routes)
+* Business rules and validations (Policies) stay out of Use Cases or Application layer (Services) 
+
 
 ---
 
@@ -51,13 +55,16 @@ Database
 app/
 │
 ├── models/              # SQLAlchemy models
-├── services/            # Business logic (BaseService pattern)
+├── policies/            # Business rules and Validation logic (BasePolicy pattern)
 ├── routes/              # Flask routes / controllers
+├── services/            # Use Cases or Application logic (BaseService pattern)
+
 ├── utils/
-│   └── exceptions/      # Custom ServiceError
+│   └── exceptions/      # Custom ServiceError, PolicyError, RoutesError
 ├── templates/           # Jinja2 templates
 ├── static/              # CSS / JS
-├── extensions.py        # db, login, etc.
+├── ext.py               # db, etc.
+├── config.py            # App Configurations
 └── app.py               # App factory
 ```
 
@@ -65,33 +72,55 @@ app/
 
 ## 🧠 Service Layer Pattern
 
-All services inherit from `BaseService`, which provides:
+Each domain entity has a corresponding service class (1:1 with models), responsible for orchestrating application workflows.
 
-* `safe_execute()` – centralized error handling
-* `create_resource()` – input validation & cleaning
-* `_save()` / `_delete()` – database persistence
+All services inherit from BaseService, which provides:
+
+safe_execute() – centralized error handling & transaction safety
+
+create_resource() – request data normalization and filtering
+
+_save() / _delete() – database persistence helpers
 
 ### Example
 
 ```python
 class IncomeService(BaseService):
-    def insert_income(self, data: dict):
+    def create_income(self, data: dict):
         clean = self.create_resource(
             data,
-            required=["source", "amount"],
-            allowed=["source", "amount", "remarks", "user_id"]
+            required=["source", "amount", "category_id"],
+            allowed=["source", "amount", "remarks", "category_id", "user_id"]
         )
+
+        IncomePolicy.validate_create(clean)
+
         income = Income(**clean)
         return self.safe_execute(lambda: self._save(income))
+
 ```
 
----
+## 🧩 Policy Layer (Business Rules)
+The Policy layer enforces all domain-specific rules and validations.
+Responsibilities:
+   * Validate business constraints
+   * Enforce data ownership
+   * Prevent invalid state transitions
+   * Centralize reusable validation logic
+Examples of enforced rules:
+   * Users can only access their own data
+   * Categories are user-specific and type-restricted
+   * Categories in use cannot be deleted
+   * Income and expense amounts must be greater than zero
+   * Debt payments cannot exceed remaining balance
+   * Savings withdrawals cannot exceed current savings balance
+Policies are stateless, reusable, and have no persistence logic.
 
 ## 🔐 Validation & Error Handling
-
-* All validation errors raise `ServiceError`
-* Database constraint errors (e.g., duplicate email) are mapped to user-friendly messages
-* Routes catch errors and render messages to HTML
+* Business rule violations raise PolicyError
+* Application-level failures raise ServiceError
+* Routes catch errors and translate them into HTTP responses or UI messages
+* Database errors are never exposed directly to users
 
 Example:
 
@@ -101,6 +130,22 @@ raise ServiceError("Email already exists")
 
 ---
 
+## 📊 Financial Calculations
+
+All financial values are derived, not stored.
+
+Examples:
+* Total income
+* Total expenses
+* Outstanding debt
+* Available balance
+
+Calculations are performed efficiently using SQL aggregation:
+```python
+func.coalesce(func.sum(Income.amount), 0)
+
+```
+
 ## 📊 Dashboard Calculations
 
 Totals are calculated efficiently using SQL aggregation:
@@ -108,11 +153,14 @@ Totals are calculated efficiently using SQL aggregation:
 ```python
 func.sum(Income.amount)
 ```
-
+✔ No cached monetary fields
 ✔ No Python loops
-✔ Scales well with large datasets
+✔ Consistent and scalable
 
+Savings are intentionally excluded from the available balance calculation.
 ---
+
+
 
 ## 🗃️ Database
 
@@ -129,14 +177,14 @@ No cached monetary values are stored to avoid inconsistency.
 ### 1️⃣ Clone the repo
 
 ```bash
-git clone https://github.com/yourusername/finance-tracker.git
-cd finance-tracker
+git clone https://github.com/inamonanymous/panot_financial_tracker.git
+cd panot_financial_tracker
 ```
 
 ### 2️⃣ Create virtual environment
 
 ```bash
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 ```
 
@@ -167,25 +215,25 @@ flask run
 
 Planned:
 
-* Unit tests for services
-* Validation tests
-* Integration tests for routes
+* Unit tests for policy rules
+* Service-level tests for use cases
+* Route integration tests
 
 ---
 
 ## 📈 Roadmap
 
-* [ ] Complete Expenses & Income modules
-* [ ] Dashboard charts
+* [#] Complete Expenses & Income modules
+* [ ] Complete dashboard summaries
+* [ ] Charts & analytics
 * [ ] Reports (monthly/yearly)
-* [ ] Performance optimizations
-
+* [ ] Budgeting module (Phase 2)
 ---
 
 ## 👤 Author
 
 **Stephen Joaquin Aguilar**
-Finance Tracker Project
+Finance Tracker Project 2025-26
 
 ---
 
