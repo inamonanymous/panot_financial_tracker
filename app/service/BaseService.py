@@ -2,6 +2,8 @@ from abc import ABC
 from app.utils.exceptions.ServiceError import ServiceError
 from app.ext import db
 import re
+from app.policies.p_UserPolicy import UserPolicy
+from app.policies.p_FinancialCalculations import FinancialCalculationsPolicy
 
 class BaseService(ABC):
     """
@@ -11,6 +13,10 @@ class BaseService(ABC):
 
     Every Service class in your app should inherit from BaseService.
     """
+
+    def __init__(self):
+        self.USER_POLICY = UserPolicy()
+        self.FINANCIALCALCULATIONS_POLICY = FinancialCalculationsPolicy()
 
     # ==============================================================
     # 1. SAFE EXECUTION WRAPPER

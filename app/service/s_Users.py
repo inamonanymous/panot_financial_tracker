@@ -9,43 +9,48 @@ from app.utils.exceptions.ServiceError import ServiceError
 from app.service.BaseService import BaseService
 from app.ext import dt
 from sqlalchemy import func
-from app.policies import UserPolicy_INS
-
 
 class UserService(BaseService):
     def check_login(self, email, password):
-        email = UserPolicy_INS.validate_email_string(email)
-        password = UserPolicy_INS.validate_password_string(
-                        password,
-                        confirm=None,
-                        min_len=8
-                    )
+        """ 
+            Checks user login authentication
+            
+            Param:
+                * email: String
+                * password: String
+            Return:
+                User Persistence: Object    
+        """
         user = Users.query.filter_by(
             email=email
         ).first()
-        if not (user and check_password_hash(user.password_hash, password)):
-            raise ServiceError("Incorrect Credentials!")
-
+        
+        self.USER_POLICY.validate_login(email, password, user)
 
         return user
     
 
     def insert_user(self, user_data: dict) -> object:
         """ 
-        Creates a new user with validated and clean data
-
-        Param: user_data: dict
-        Return: User object instance
+            Insert User record
+            
+            Param:
+                data: Dictionary
+                    * firstname: String
+                    * lastname: String
+                    * email: String
+                    * password_hash: String
+            Return:
+                User Persistence: Object        
         """
+        filtered_user_data = self.USER_POLICY.validate_registration(user_data)
 
-        clean = UserPolicy_INS.validate_registration(user_data)
-
-        new_user = Users(**clean)
+        new_user = Users(**filtered_user_data)
 
         return self.safe_execute(lambda: self._save(new_user),
-                                    error_message="Failed to create Userw")
+                                    error_message="Failed to create User")
 
-    def get_user_by_id(id: int) -> object:
+    def get_user_by_id(self, id: int) -> object:
         return Users.query.filter_by(id=id).first()
     
     def get_user_by_email(self, email: str) -> object:
@@ -53,52 +58,35 @@ class UserService(BaseService):
     
     def get_all_users():
         return Users.query.all()
+   
+    def edit_user(self, id: int, user_data: dict) -> object:
+        """ 
+            Updates user record by id
+            
+            Param:
+                data: Dictionary
+                    * firstname : String
+                    * lastname : String
+            Return:
+                User Persistence: Object        
+        """
+        target_user = self.get_user_by_id(id)
+        filtered_user_data = self.USER_POLICY.validate_editing(user_data)
+
+        for field, value in filtered_user_data.items():
+            setattr(target_user, field, value)
+
+        return self.safe_execute(lambda: self._save(target_user),
+                                 error_message="Failed to update user")
     
-    def edit_user(id: int, user_data: dict) -> object:
-        try:
-            target_user = Users.query.filter_by(id=id).first()
-            if not target_user:
-                raise Exception(f"User-{id} not found")
-
-            # Allowed fields with expected data types
-            allowed_fields = {
-                'firstname': str,
-                'lastname': str,
-            }
-
-            for field, expected_type in allowed_fields.items():
-                if field in user_data and user_data[field] is not None:
-                    value = user_data[field]
-
-                    # Make sure value is a string (and not empty)
-                    if isinstance(value, expected_type) and str(value).strip():
-                        setattr(target_user, field, value)
-
-            target_user.updated_at = dt.now()
-            db.session.commit()
-            return target_user
-
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            print(f"Database error: {e}")
-            return None
-
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error editing user: {e}")
-            return None
         
-    def delete_user(id: int) -> bool:
-        try:
-            target_user = Users.query.filter_by(id=id).first()
-            if not target_user:
-                raise Exception(f"User-{id} not found")
-            db.session.delete(target_user)
-            db.session.commit()
-            return True
-        except SQLAlchemyError as e:
-            print(e)
-            return False
+    def delete_user(self, id: int) -> bool:
+        target_user = self.get_user_by_id(id)
+
+        return self.safe_execute(
+            lambda: self._delete(target_user),
+            error_message="Failed to delete user"
+        )
         
 
     def calculate_current_amount_by_userid(self, user_id: int) -> float:
@@ -131,14 +119,14 @@ class UserService(BaseService):
             .scalar()
         )
 
-        current_value = (
-            total_income
-            - total_expense
-            - total_debt_payments
-            - total_saving_deposits
+        current_value = self.FINANCIALCALCULATIONS_POLICY.caculate_current_amount_of_user(
+            total_income, 
+            total_expense, 
+            total_debt_payments, 
+            total_saving_deposits
         )
 
-        return float(current_value)
+        return current_value
 
 
     def _save(self, instance):

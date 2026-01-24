@@ -37,6 +37,10 @@ def login():
 @require_user_session
 def dashboard():
     user = get_current_user()
+    US_INS.edit_user(user.id, {
+        "firstname": "Stephen",
+        "lastname": "Joaquin"
+    })
     return render_template('auth/pages/dashboard.html', 
                            user=get_current_user(), 
                            total_income=IS_INS.calculate_total_income_by_userid(int(user.id)),
