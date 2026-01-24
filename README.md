@@ -76,32 +76,84 @@ Each domain entity has a corresponding service class (1:1 with models), responsi
 
 All services inherit from BaseService, which provides:
 
+USER_POLICY - UserPolicy() Instance
+FINANCIALCALCULATIONS_POLICY - FinancialCalculations() Instance
 safe_execute() – centralized error handling & transaction safety
-
-create_resource() – request data normalization and filtering
-
 _save() / _delete() – database persistence helpers
 
 ### Example
 
 ```python
-class IncomeService(BaseService):
-    def create_income(self, data: dict):
-        clean = self.create_resource(
-            data,
-            required=["source", "amount", "category_id"],
-            allowed=["source", "amount", "remarks", "category_id", "user_id"]
-        )
+class UserService(BaseService):
+   def insert_user(self, user_data: dict) -> object:
+         """ 
+         Insert User record
+         
+         Param:
+            data: Dictionary
+               * firstname: String
+               * lastname: String
+               * email: String
+               * password_hash: String
+         Return:
+            User Persistence: Object        
+         """
+         filtered_user_data = self.USER_POLICY.validate_registration(user_data)
 
-        IncomePolicy.validate_create(clean)
+         new_user = Users(**filtered_user_data)
 
-        income = Income(**clean)
-        return self.safe_execute(lambda: self._save(income))
+         return self.safe_execute(lambda: self._save(new_user),
+                                       error_message="Failed to create User")
+
 
 ```
 
 ## 🧩 Policy Layer (Business Rules)
 The Policy layer enforces all domain-specific rules and validations.
+
+All services inherit from BasePolicy, which provides:
+create_resource() – request data normalization and filtering when creating a resource
+update_resource() – request data normalization and filtering when updating a resource
+
+### Example
+
+```python
+class UserPolicy(BasePolicy):
+      def validate_registration(self, user_data: dict) -> dict:
+         """ 
+         Validates user registration and returns filtered fields from received data
+         
+         Param:
+            data: Dictionary
+               * firstname: String
+               * lastname: String
+               * email: String
+               * password_hash: String
+         Return:
+            filtered_user_data: String        
+         """
+         user_data['firstname'] = self.validate_name(user_data['firstname'], "Firstname")
+         user_data['lastname']  = self.validate_name(user_data['lastname'], "Lastname")
+         user_data['email']     = self.validate_email_string(user_data['email'])
+         user_data['password_hash']  = self.validate_password_string(
+                           user_data['password_hash'],
+                           confirm=user_data.get('password2'),
+                           min_len=8
+                     )
+         
+         hashed_password = generate_password_hash(user_data['password_hash'].strip())
+         user_data['password_hash'] = hashed_password
+
+         filtered_user_data = self.create_resource(
+               user_data,
+               required=['firstname', 'lastname', 'email', 'password_hash'],
+               allowed=['firstname', 'lastname', 'email', 'password_hash']
+         )
+
+         return filtered_user_data
+
+```
+
 Responsibilities:
    * Validate business constraints
    * Enforce data ownership
