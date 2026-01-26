@@ -57,7 +57,7 @@ class SavingTransactionsService(BaseService):
     # -----------------------------------------------------
     def edit_saving_transaction(self, id: int, user_id: int, data: dict) -> object:
         """ 
-            Updates saving transactions record by id and user_id
+            Calculates current amount of a user in the record and returns difference of expense, debt payments, and saving deposits from income
             
             Param:
                 data: Dictionary

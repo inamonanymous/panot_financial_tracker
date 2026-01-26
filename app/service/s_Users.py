@@ -29,7 +29,6 @@ class UserService(BaseService):
 
         return user
     
-
     def insert_user(self, user_data: dict) -> object:
         """ 
             Insert User record
@@ -43,7 +42,7 @@ class UserService(BaseService):
             Return:
                 User Persistence: Object        
         """
-        filtered_user_data = self.USER_POLICY.validate_registration(user_data)
+        filtered_user_data = self.USER_POLICY.validate_user_registration(user_data)
 
         new_user = Users(**filtered_user_data)
 
@@ -51,12 +50,26 @@ class UserService(BaseService):
                                     error_message="Failed to create User")
 
     def get_user_by_id(self, id: int) -> object:
+        """ 
+            Get User record
+            
+            Param:
+                * id : int
+            Return:
+                User Persistence: Object        
+        """
         return Users.query.filter_by(id=id).first()
     
     def get_user_by_email(self, email: str) -> object:
         return Users.query.filter_by(email=email).first()
     
-    def get_all_users():
+    def get_all_users() -> list:
+        """ 
+            Get all user records in database
+            
+            Return:
+                User Persistence Objects: List        
+        """
         return Users.query.all()
    
     def edit_user(self, id: int, user_data: dict) -> object:
@@ -71,16 +84,24 @@ class UserService(BaseService):
                 User Persistence: Object        
         """
         target_user = self.get_user_by_id(id)
-        filtered_user_data = self.USER_POLICY.validate_editing(user_data)
+        filtered_user_data = self.USER_POLICY.validate_user_editing(user_data, target_user)
 
         for field, value in filtered_user_data.items():
             setattr(target_user, field, value)
 
         return self.safe_execute(lambda: self._save(target_user),
                                  error_message="Failed to update user")
-    
-        
+           
     def delete_user(self, id: int) -> bool:
+        """ 
+            Delete user record by id
+            
+            Param:
+                * id : Int
+            Return:
+                Boolean
+        """
+
         target_user = self.get_user_by_id(id)
 
         return self.safe_execute(
@@ -88,8 +109,15 @@ class UserService(BaseService):
             error_message="Failed to delete user"
         )
         
-
     def calculate_current_amount_by_userid(self, user_id: int) -> float:
+        """ 
+            Calculates current amount of a user in the record and returns difference of expense, debt payments, and saving deposits from income
+            
+            Param:
+                * user_id : Int
+            Return:
+                User Persistence Objects: List        
+        """
         total_income = (
             Income.query
             .with_entities(func.coalesce(func.sum(Income.amount), 0))
@@ -127,7 +155,6 @@ class UserService(BaseService):
         )
 
         return current_value
-
 
     def _save(self, instance):
         try:

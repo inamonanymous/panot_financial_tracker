@@ -4,6 +4,7 @@ from app.ext import db
 import re
 from app.policies.p_UserPolicy import UserPolicy
 from app.policies.p_FinancialCalculations import FinancialCalculationsPolicy
+from app.policies.p_CategoryPolicy import CategoryPolicy
 
 class BaseService(ABC):
     """
@@ -17,6 +18,7 @@ class BaseService(ABC):
     def __init__(self):
         self.USER_POLICY = UserPolicy()
         self.FINANCIALCALCULATIONS_POLICY = FinancialCalculationsPolicy()
+        self.CATEGORY_POLICY = CategoryPolicy()
 
     # ==============================================================
     # 1. SAFE EXECUTION WRAPPER
