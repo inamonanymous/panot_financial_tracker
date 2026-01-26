@@ -2,6 +2,7 @@ from abc import ABC
 from app.utils.exceptions.PolicyError import PolicyError
 from app.ext import db
 import re
+from datetime import date, datetime
 
 class BasePolicy(ABC):
     """
@@ -167,3 +168,116 @@ class BasePolicy(ABC):
             raise PolicyError("No valid fields provided for update")
 
         return filtered
+
+
+    # -------------------------------------------------
+    # VALIDATE NUMERIC / FLOAT VALUES (MONEY-SAFE)
+    # -------------------------------------------------
+    def validate_numeric_values(
+        self,
+        value,
+        field_name: str = "Amount",
+        *,
+        allow_zero: bool = False
+    ) -> float:
+        """
+        Validates numeric input for money-related fields.
+
+        Accepts:
+        - int
+        - float
+        - numeric strings ("100", "100.50")
+
+        Rejects:
+        - None
+        - empty string
+        - non-numeric values
+
+        Returns:
+        - float (normalized)
+
+        Raises:
+        - PolicyError
+        """
+
+        if value is None:
+            raise PolicyError(f"{field_name} is required")
+
+        try:
+            amount = float(value)
+        except (TypeError, ValueError):
+            raise PolicyError(f"{field_name} must be a number")
+
+        if allow_zero:
+            if amount < 0:
+                raise PolicyError(f"{field_name} cannot be negative")
+        else:
+            if amount <= 0:
+                raise PolicyError(f"{field_name} must be greater than zero")
+
+        return amount
+
+
+    def validate_date_value(
+        self,
+        value,
+        field_name: str = "Date",
+        *,
+        allow_future: bool = True,
+        allow_past: bool = True
+    ) -> date:
+        """
+        Validates date input from request data.
+
+        Accepts:
+        - datetime.date
+        - datetime.datetime
+        - ISO date strings: "YYYY-MM-DD"
+        - ISO datetime strings: "YYYY-MM-DDTHH:MM:SS"
+
+        Rejects:
+        - None
+        - empty string
+        - invalid date formats
+
+        Returns:
+        - datetime.date (normalized)
+
+        Raises:
+        - PolicyError
+        """
+
+        if value is None or value == "":
+            raise PolicyError(f"{field_name} is required")
+
+        # Normalize datetime/date objects
+        if isinstance(value, datetime):
+            parsed_date = value.date()
+        elif isinstance(value, date):
+            parsed_date = value
+        elif isinstance(value, str):
+            value = value.strip()
+
+            try:
+                # Try ISO date first
+                parsed_date = date.fromisoformat(value)
+            except ValueError:
+                try:
+                    # Try ISO datetime
+                    parsed_date = datetime.fromisoformat(value).date()
+                except ValueError:
+                    raise PolicyError(
+                        f"{field_name} must be a valid date (YYYY-MM-DD)"
+                    )
+        else:
+            raise PolicyError(f"{field_name} must be a valid date")
+
+        today = date.today()
+
+        if not allow_future and parsed_date > today:
+            raise PolicyError(f"{field_name} cannot be in the future")
+
+        if not allow_past and parsed_date < today:
+            raise PolicyError(f"{field_name} cannot be in the past")
+
+        return parsed_date

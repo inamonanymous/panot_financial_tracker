@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, session, url_for, request
 from functools import wraps
-from app.service import US_INS, IS_INS, ES_INS, DS_INS, DPS_INS, STS_INS
+from app.service import US_INS, IS_INS, ES_INS, DS_INS, DPS_INS, STS_INS, CS_INS
 from app.utils.exceptions.ServiceError import ServiceError
 from app.routes.functions import require_user_session, get_current_user
 users = Blueprint(
@@ -37,10 +37,7 @@ def login():
 @require_user_session
 def dashboard():
     user = get_current_user()
-    US_INS.edit_user(user.id, {
-        "firstname": "Stephen",
-        "lastname": "Joaquin"
-    })
+    
     return render_template('auth/pages/dashboard.html', 
                            user=get_current_user(), 
                            total_income=IS_INS.calculate_total_income_by_userid(int(user.id)),

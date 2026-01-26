@@ -1,6 +1,6 @@
 from app.service import check_password_hash, generate_password_hash
 from app.policies.BasePolicy import BasePolicy
-from app.utils.exceptions import PolicyError
+from app.utils.exceptions.PolicyError import PolicyError
 import re
 
 class UserPolicy(BasePolicy):
@@ -30,7 +30,7 @@ class UserPolicy(BasePolicy):
         if not check_password_hash(user.password_hash, password):
             raise PolicyError("Invalid Password")
 
-    def validate_registration(self, user_data: dict) -> dict:
+    def validate_user_registration(self, user_data: dict) -> dict:
         """ 
             Validates user registration and returns filtered fields from received data
             
@@ -43,8 +43,8 @@ class UserPolicy(BasePolicy):
             Return:
                 filtered_user_data: String        
         """
-        user_data['firstname'] = self.validate_name(user_data['firstname'], "Firstname")
-        user_data['lastname']  = self.validate_name(user_data['lastname'], "Lastname")
+        user_data['firstname'] = self.validate_user_name(user_data['firstname'], "Firstname")
+        user_data['lastname']  = self.validate_user_name(user_data['lastname'], "Lastname")
         user_data['email']     = self.validate_email_string(user_data['email'])
         user_data['password_hash']  = self.validate_password_string(
                         user_data['password_hash'],
@@ -63,7 +63,7 @@ class UserPolicy(BasePolicy):
 
         return filtered_user_data
     
-    def validate_editing(self, user_data: dict) -> dict:
+    def validate_user_editing(self, user_data: dict, user: object) -> dict:
         """ 
             Validates user edit record and returns filtered fields from received data
             
@@ -74,26 +74,29 @@ class UserPolicy(BasePolicy):
             Return:
                 clean: String
         """
+        if user is None:
+            raise PolicyError(f"User not found")
+
         clean = self.update_resource(
             user_data,
             allowed=["firstname", "lastname"]
         )
 
         if "firstname" in clean:
-            clean["firstname"] = self.validate_name(
+            clean["firstname"] = self.validate_user_name(
                 value=clean["firstname"], 
                 field_name="Firstname"
             )
 
         if "lastname" in clean:
-            clean["lastname"] = self.validate_name(
+            clean["lastname"] = self.validate_user_name(
                 value=clean["lastname"], 
                 field_name="Lastname"
             )
         
         return clean
     
-    def validate_name(self, value: str, *, field_name: str) -> str:
+    def validate_user_name(self, value: str, *, field_name: str) -> str:
         """ 
             Validates user firstname and lastname validity
             
@@ -108,7 +111,7 @@ class UserPolicy(BasePolicy):
         value = self.validate_string(value, field_name, min_len=2)
 
         if not re.fullmatch(r"^[A-Za-z]+(?: [A-Za-z]+)*$", value):
-            raise ValueError(
+            raise PolicyError(
                 f"{field_name} must contain letters only, with single spaces between words"
             )
 

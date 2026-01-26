@@ -1,13 +1,12 @@
 from app.model.m_Categories import Categories, db
+from app.model.m_Income import Income
+from app.model.m_Expenses import Expenses
 from sqlalchemy.exc import SQLAlchemyError
 from app.utils.exceptions import ServiceError
 from app.service.BaseService import BaseService
-
+from sqlalchemy.sql import exists
 
 class CategoriesService(BaseService):
-    # -----------------------------------------------------
-    # CREATE CATEGORY
-    # -----------------------------------------------------
     def insert_category(self, data: dict) -> object:
         """
         Creates a new category with validated and cleaned data.
@@ -18,77 +17,125 @@ class CategoriesService(BaseService):
                 * type : Enum("income", "expense") 
                 * name : String  
         Return: 
-            Category Instance
+            Category Persistence: Object
         """
 
-        clean = self.create_resource(
-            data,
-            required=["user_id", "type", "name"],
-            allowed=["user_id", "type", "name"]
-        )
+        clean = self.CATEGORY_POLICY.validate_insert_category(data)
+
+        check_category_record = self.get_category_by_name_and_userid(clean["name"], clean["user_id"])
+
+        self.CATEGORY_POLICY.validate_duplicate_category_name_entry(check_category_record)
 
         new_category = Categories(**clean)
 
         return self.safe_execute(lambda: self._save(new_category),
                                  error_message="Failed to create category")
 
-    # -----------------------------------------------------
-    # GET CATEGORY BY ID
-    # -----------------------------------------------------
-    def get_category_by_id(self, category_id: int) -> object:
-        return Categories.query.filter_by(id=category_id).first()
 
+    def get_category_by_id(self, category_id: int) -> object:
+        """ 
+            Get Category record by id
+            
+            Param:
+                * category_id : int
+           Return:
+                Categories Persistence: Object        
+        """
+        return Categories.query.filter_by(id=category_id).first()
     
-    # -----------------------------------------------------
-    # GET CATEGORY BY ID AND USER ID
-    # -----------------------------------------------------
+
+    def get_category_by_name_and_userid(self, name: str, user_id) -> object:
+        """ 
+            Get Category record by name and user id
+            
+            Param:
+                * name : int
+                * user_id : int
+            Return:
+                Categories Persistence: Object        
+        """
+        return Categories.query.filter_by(name=name, user_id=user_id).first()
+
+
     def get_category_by_id_and_userid(self, category_id: int, user_id: int) -> object:
+        """ 
+            Get Category record by id and user id
+            
+            Param:
+                * category_id : int
+                * user_id : int
+            Return:
+                Categories Persistence: Object        
+        """
         return Categories.query.filter_by(id=category_id, user_id=user_id).first()
 
     def get_all_categories_by_user(self, user_id: int) -> list:
+        """ 
+            Returns list of all category objects by a user stored in database
+            
+            Return:
+                Categories Persistence Objects: List        
+        """
         return Categories.query.filter_by(user_id=user_id).all()
+    
+    
+    def get_category_in_use(self, category_id) -> list:
+        """
+        Return the category object if it is in use (Income or Expenses)
 
-    # -----------------------------------------------------
-    # UPDATE CATEGORY
-    # -----------------------------------------------------
+        Param:
+            None
+        Return: 
+            Categories Persistence: Object    
+        """
+        category_in_use = (
+            db.session.query(Categories)
+            .filter(Categories.id == category_id)
+            .filter(
+                exists().where(Income.category_id == Categories.id)
+                | exists().where(Expenses.category_id == Categories.id)
+            )
+            .first()
+        )
+
+        return category_in_use
+
     def edit_category(self, category_id: int, data: dict) -> object:
         """
         Updates category record with validated and cleaned data.
 
         Param:
+            category_id
             data: Dictionary
                 * name : String  
         Return: 
-            Category Instance
+            Categories Persistence: Object
         """
-        category = self.get_category_by_id(category_id)
+        target_category = self.get_category_by_id(category_id)
+        filtered_category_data = self.CATEGORY_POLICY.validate_category_editing(data, target_category)
+        self.CATEGORY_POLICY.validate_duplicate_category_name_entry(filtered_category_data["name"])
 
-        clean = self.create_resource(
-            data,
-            required=["name"],     # only name is required for editing
-            allowed=["name"]       # only allow editing name
-        )
+        for field, value in filtered_category_data.items():
+            setattr(target_category, field, value)
 
-        if clean["name"] is None:
-            raise ServiceError("Name shouldn't be empy")
-
-        category.name = clean["name"]
-
-        return self.safe_execute(lambda: self._save(category),
+        return self.safe_execute(lambda: self._save(target_category),
                                  error_message="Failed to update category")
 
-    # -----------------------------------------------------
-    # DELETE CATEGORY
-    # -----------------------------------------------------
-    def delete_category(self, category_id: int) -> bool:
 
-        category = self.get_category_by_id(category_id)
-
+    def delete_category(self, category_id: int, user_id: int) -> bool:
+        """ 
+            Delete category record by id
+            Param:
+                * id : Int
+                * user_id: Int
+            Return:
+                Boolean
+        """
+        category = self.get_category_by_id_and_userid(category_id, user_id)
+        category_in_use_checker = self.get_category_in_use(category_id)
+        self.CATEGORY_POLICY.validate_category_deletion(category, user_id, category_in_use_checker)
+        
         return self.safe_execute(
             lambda: self._delete(category),
             error_message="Failed to delete category"
         )
-
-    # -----------------------------------------------------
-    # PRIVATE DB HELPERS
-    # -----------------------------------------------------
