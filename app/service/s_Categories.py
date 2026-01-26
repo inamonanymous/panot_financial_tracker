@@ -17,7 +17,7 @@ class CategoriesService(BaseService):
                 * type : Enum("income", "expense") 
                 * name : String  
         Return: 
-            Category Instance
+            Category Persistence: Object
         """
 
         clean = self.CATEGORY_POLICY.validate_insert_category(data)
@@ -127,6 +127,7 @@ class CategoriesService(BaseService):
             Delete category record by id
             Param:
                 * id : Int
+                * user_id: Int
             Return:
                 Boolean
         """

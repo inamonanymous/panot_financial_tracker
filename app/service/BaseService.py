@@ -5,6 +5,7 @@ import re
 from app.policies.p_UserPolicy import UserPolicy
 from app.policies.p_FinancialCalculations import FinancialCalculationsPolicy
 from app.policies.p_CategoryPolicy import CategoryPolicy
+from app.policies.p_TransactionPolicy import TransactionPolicy
 
 class BaseService(ABC):
     """
@@ -19,6 +20,7 @@ class BaseService(ABC):
         self.USER_POLICY = UserPolicy()
         self.FINANCIALCALCULATIONS_POLICY = FinancialCalculationsPolicy()
         self.CATEGORY_POLICY = CategoryPolicy()
+        self.TRANSACTION_POLICY = TransactionPolicy()
 
     # ==============================================================
     # 1. SAFE EXECUTION WRAPPER

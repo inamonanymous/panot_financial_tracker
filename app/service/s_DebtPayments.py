@@ -11,26 +11,22 @@ class DebtPaymentsService(BaseService):
     # CREATE DEBT PAYMENTS
     # -----------------------------------------------------   
     def insert_debt_payments(self, data: dict) -> object:
-        """ 
-        Creates a new debt payment with validated and cleaned data.
         """
-        clean = self.create_resource(
-            data,
-            required=[
-                "lender"
-                "principal",
-                "interest_rate",
-                "start_date",
-                "due_date"
-            ],
-            allowed=[
-                "lender"
-                "principal",
-                "interest_rate",
-                "start_date",
-                "due_date"
-            ]
-        )
+        Creates a new debt_payment with validated and cleaned data.
+
+        Param:
+            data: Dictionary
+                * debt_id : Integer
+                * user_id : Integer
+                * amount : Float
+                * payment_date : Date  
+                * remarks : String  
+        Return: 
+            DebtPayments Persistence: Object
+        """
+
+
+        clean = self.TRANSACTION_POLICY.validate_insert_debt_payment(data)
 
         new_debt_payment = DebtPayments(**clean)
 
