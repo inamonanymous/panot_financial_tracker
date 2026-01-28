@@ -1,4 +1,7 @@
 from app.model.m_Expenses import db, Expenses
+from app.model.m_Categories import Categories
+from app.model.m_DebtPayments import DebtPayments
+from app.model.m_SavingTransactions import SavingTransactions
 from sqlalchemy.exc import SQLAlchemyError
 from app.ext import dt
 from app.utils.exceptions import ServiceError
@@ -6,82 +9,111 @@ from app.service.BaseService import BaseService
 from sqlalchemy import func
 
 class ExpenseService(BaseService):
-    # -----------------------------------------------------
-    # CREATE EXPENSE
-    # -----------------------------------------------------
     def insert_expense(self, data: dict) -> object:
         """ 
-        Creates a new expense with validated and cleaned data. 
-        """
-        clean = self.create_resource(
-            data,
-            required=["user_id", "category_id", "payee", "amount", "expense_date", "payment_method"],
-            allowed=["user_id", "category_id", "payee", "amount", "expense_date", "payment_method", "remarks"]
-        )
+            Creates a new Expense with validated and cleaned data.
 
-        new_expense = Expenses(**clean)
-        
+            Param:  
+                data: Dictionary
+                    * user_id : Integer
+                    * category_id : Integer
+                    * payee : String
+                    * amount : Float
+                    * expense_date : String
+                    * payment_method : Enum("cash", "gcash", "bank", "card", "other")
+                    * remarks : String
+            Return:
+                clean : Dictionary
+        """
+        filtered_expense_data = self.TRANSACTION_POLICY.validate_insert_expense(data)
+        new_expense = Expenses(**filtered_expense_data)
         return self.safe_execute(lambda: self._save(new_expense),
                                  error_message="Failed to create expense")
     
-    # -----------------------------------------------------
-    # GET EXPENSE BY ID
-    # -----------------------------------------------------
     def get_expense_by_id(self, expense_id) -> object:
+        """ 
+            Get Expense record by id
+            
+            Param:
+                * expense_id : int
+           Return:
+                Expense Persistence: Object        
+        """
         return Expenses.query.filter_by(id=expense_id).first()
     
-    # -----------------------------------------------------
-    # GET EXPENSE BY ID and USER ID
-    # -----------------------------------------------------
     def get_expenses_by_id_and_userid(self, expense_id, user_id) -> object:
+        """ 
+            Get Expense record by id and user id
+            
+            Param:
+                * expense_id : int
+                * user_id : int
+           Return:
+                Expense Persistence: Object        
+        """
         return Expenses.query.filter_by(id=expense_id, user_id=user_id).first()
 
-    # -----------------------------------------------------
-    # GET ALL EXPENSE BY USER
-    # -----------------------------------------------------    
     def get_all_expense_by_user(self, user_id):
+        """ 
+            Returns list of all Expense Objects by a user stored in database
+            
+            Param:
+                * expense_id : int
+           Return:
+                Expense Persistence: Object        
+        """
         return Expenses.query.filter_by(user_id=user_id).all()
     
-    # -----------------------------------------------------
-    # UPDATE EXPENSE
-    # -----------------------------------------------------
-    def edit_expense(self, user_id, income_id, data: dict) -> object:
-        target_expense = self.get_expenses_by_id_and_userid(income_id, user_id)
-
-        if target_expense is None:
-            raise ServiceError("No expense record found")
+    def edit_expense(self, user_id, expense_id, data: dict) -> object:
+        """ 
+            Edit an expense Record with validated and cleaned data. 
+            Param:  
+                data: Dictionary
+                    * user_id : Integer
+                    * category_id : Integer
+                    * payee : String
+                    * expense_date : String
+                    * payment_method : Enum("cash", "gcash", "bank", "card", "other")
+                    * remarks : String
+           Return:
+                Expense Persistence: Object        
+        """
+        target_expense = self.get_expenses_by_id_and_userid(expense_id, user_id)
+        filtered_expenses_data = self.TRANSACTION_POLICY.validate_insert_expense(data, target_expense)
+        category = self.get_category_by_id_and_userid(filtered_expenses_data["category_id"], user_id)
+        self.CATEGORY_POLICY.validate_users_category_existence(category)
         
-        clean = self.update_resource(
-            data,
-            allowed=["category_id", "payee", "payment_method", "remarks"]
-        )
-
-        if clean["category_id"]:
-            #should have category checker
-            target_expense.category_id = clean["category_id"]
-        if clean["payee"]:
-            target_expense.payee = clean["payee"]
-        if clean["payment_method"]:
-            target_expense.payment_method = clean["payment_method"]
-        if clean["remarks"]:
-            target_expense.remarks = clean["remarks"]
-
+        for field, value in filtered_expenses_data.items():
+            setattr(target_expense, field, value)
         return self.safe_execute(lambda: self._save(target_expense),
                                  error_message="Failed to update expense")
     
-    # -----------------------------------------------------
-    # DELETE EXPENSE
-    # -----------------------------------------------------
-    def delete_expense(self, expense_id, user_id) -> bool:
+    def delete_expense(self, expense_id, user_id):
+        """ 
+            Delete Expense record by id
+            Param:
+                * expense_id : Int
+                * user_id: Int
+            Return:
+                Boolean
+        """
         expense = self.get_expenses_by_id_and_userid(expense_id, user_id)
-
+        debt_payment = self.get_debt_payment_by_expense_id(expense.id)
+        saving_transaction = self.get_saving_transaction_by_expense_id(expense.id)
+        self.TRANSACTION_POLICY.validate_expense_deletion(expense, debt_payment, saving_transaction)
         return self.safe_execute(
             lambda: self._delete(expense),
             error_message="Failed to delete expense"
         )
     
-
     def calculate_total_expense_by_userid(self, user_id: int) -> float:
+        """ 
+            Returns sum of a user total Expense
+            Param:
+                * user_id: Int
+            Return:
+                total: Float
+        """
         total = (
             Expenses.query
             .with_entities(func.coalesce(func.sum(Expenses.amount), 0))
@@ -89,3 +121,37 @@ class ExpenseService(BaseService):
             .scalar()
         )
         return float(total)
+
+    def get_category_by_id_and_userid(self, category_id: int, user_id: int) -> object:
+        """ 
+            Get Category record by id and user id
+            
+            Param:
+                * category_id : int
+                * user_id : int
+            Return:
+                Categories Persistence: Object        
+        """
+        return Categories.query.filter_by(id=category_id, user_id=user_id).first()
+    
+    def get_debt_payment_by_expense_id(self, expense_id) -> object:
+        """ 
+            Get DebtPayments record expense id
+            
+            Param:
+                * expense_id : int
+            Return:
+                DebtPayments Persistence: Object        
+        """
+        return DebtPayments.query.filter_by(expense_id=expense_id).first()
+    
+    def get_saving_transaction_by_expense_id(self, expense_id) -> object:
+        """ 
+            Get SavingTransactions record expense id
+            
+            Param:
+                * expense_id : int
+            Return:
+                SavingTransactions Persistence: Object        
+        """
+        return SavingTransactions.query.filter_by(expense_id=expense_id).first()

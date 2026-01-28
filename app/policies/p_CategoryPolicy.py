@@ -26,7 +26,6 @@ class CategoryPolicy(BasePolicy):
         
         filtered_category_data["name"] = self.validate_string(filtered_category_data["name"], "Category Name", min_len=3)
         
-
         return filtered_category_data
 
     def validate_duplicate_category_name_entry(self, category_obj):
@@ -84,3 +83,7 @@ class CategoryPolicy(BasePolicy):
         if category.user_id != current_user_id:
             raise PolicyError(f"Cannot delete category user don't own '{category.name}'")
         
+    def validate_users_category_existence(self, category):
+        if category is None:
+            raise PolicyError("No category found")
+    

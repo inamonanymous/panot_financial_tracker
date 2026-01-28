@@ -33,11 +33,27 @@ def login():
     except ServiceError as e:
         return redirect(url_for('users.login', error_message=str(e)))
 
+import datetime
 @users.route('/dashboard')
 @require_user_session
 def dashboard():
     user = get_current_user()
-    
+    """ debts_data = {
+        "user_id": 1,
+        "debt_id": 1
+    }
+    expense_data = {
+        "user_id": 1,
+        "debt_id": 1,
+        "amount": 150,
+        "expense_date": datetime.datetime.now().date(),
+        "payment_method": "cash",
+        "remarks": ""
+    }
+    DPS_INS.insert_debt_payment(
+        debt_data=debts_data,
+        expense_data=expense_data
+    ) """
     return render_template('auth/pages/dashboard.html', 
                            user=get_current_user(), 
                            total_income=IS_INS.calculate_total_income_by_userid(int(user.id)),

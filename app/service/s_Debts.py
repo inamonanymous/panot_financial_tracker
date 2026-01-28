@@ -35,7 +35,7 @@ class DebtsService(BaseService):
             Get Debt record by id
             
             Param:
-                * category_id : int
+                * debt_id : int
            Return:
                 Debts Persistence: Object        
         """ 
@@ -72,7 +72,7 @@ class DebtsService(BaseService):
                     * principal : Float
                     * interest_rate : Float
             Return:
-                Debts Instance        
+                Debts Instance : Object        
         """
         target_debt = self.get_debt_by_id_and_userid(debt_id, user_id)
 

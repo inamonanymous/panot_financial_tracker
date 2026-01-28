@@ -6,9 +6,11 @@ class SavingTransactions(db.Model):
     goal_id = db.Column(db.Integer, db.ForeignKey('saving_goals.id', ondelete="CASCADE"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
     txt_type = db.Column(db.Enum("deposit", "withdraw"), nullable=False, default='deposit')
-    amount = db.Column(db.Float, nullable=False, default=1.0)
-    txt_date = db.Column(db.Date, default=dt.now().date, nullable=False)
-    remarks = db.Column(db.String(255))
+    income_id = db.Column(db.Integer, db.ForeignKey('income.id', ondelete="CASCADE"), nullable=True)
+    expense_id = db.Column(db.Integer, db.ForeignKey('expenses.id', ondelete="CASCADE"), nullable=True)
+
+    income = db.relationship("Income", foreign_keys=[income_id], backref=db.backref('saving_transactions', lazy=True, cascade='all, delete-orphan'))
+    expenses = db.relationship("Expenses", foreign_keys=[expense_id], backref=db.backref('saving_transactions', lazy=True, cascade='all, delete-orphan'))
 
     goals = db.relationship("SavingGoals", foreign_keys=[goal_id], backref=db.backref('saving_transactions', lazy=True, cascade='all, delete-orphan'))
     users = db.relationship("Users", foreign_keys=[user_id], backref=db.backref('saving_transactions', lazy=True, cascade='all, delete-orphan'))

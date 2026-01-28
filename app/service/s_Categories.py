@@ -19,18 +19,12 @@ class CategoriesService(BaseService):
         Return: 
             Category Persistence: Object
         """
-
         clean = self.CATEGORY_POLICY.validate_insert_category(data)
-
         check_category_record = self.get_category_by_name_and_userid(clean["name"], clean["user_id"])
-
         self.CATEGORY_POLICY.validate_duplicate_category_name_entry(check_category_record)
-
         new_category = Categories(**clean)
-
         return self.safe_execute(lambda: self._save(new_category),
                                  error_message="Failed to create category")
-
 
     def get_category_by_id(self, category_id: int) -> object:
         """ 
@@ -43,7 +37,6 @@ class CategoriesService(BaseService):
         """
         return Categories.query.filter_by(id=category_id).first()
     
-
     def get_category_by_name_and_userid(self, name: str, user_id) -> object:
         """ 
             Get Category record by name and user id
@@ -55,7 +48,6 @@ class CategoriesService(BaseService):
                 Categories Persistence: Object        
         """
         return Categories.query.filter_by(name=name, user_id=user_id).first()
-
 
     def get_category_by_id_and_userid(self, category_id: int, user_id: int) -> object:
         """ 
@@ -78,7 +70,6 @@ class CategoriesService(BaseService):
         """
         return Categories.query.filter_by(user_id=user_id).all()
     
-    
     def get_category_in_use(self, category_id) -> list:
         """
         Return the category object if it is in use (Income or Expenses)
@@ -97,10 +88,9 @@ class CategoriesService(BaseService):
             )
             .first()
         )
-
         return category_in_use
 
-    def edit_category(self, category_id: int, data: dict) -> object:
+    def edit_category(self, category_id: int, data: dict, user_id) -> object:
         """
         Updates category record with validated and cleaned data.
 
@@ -111,16 +101,15 @@ class CategoriesService(BaseService):
         Return: 
             Categories Persistence: Object
         """
-        target_category = self.get_category_by_id(category_id)
+        target_category = self.get_category_by_id_and_userid(category_id, user_id)
         filtered_category_data = self.CATEGORY_POLICY.validate_category_editing(data, target_category)
-        self.CATEGORY_POLICY.validate_duplicate_category_name_entry(filtered_category_data["name"])
+        category = self.get_category_by_name_and_userid(filtered_category_data["name"], user_id)
+        self.CATEGORY_POLICY.validate_duplicate_category_name_entry(category)
 
         for field, value in filtered_category_data.items():
             setattr(target_category, field, value)
-
         return self.safe_execute(lambda: self._save(target_category),
                                  error_message="Failed to update category")
-
 
     def delete_category(self, category_id: int, user_id: int) -> bool:
         """ 
@@ -134,7 +123,6 @@ class CategoriesService(BaseService):
         category = self.get_category_by_id_and_userid(category_id, user_id)
         category_in_use_checker = self.get_category_in_use(category_id)
         self.CATEGORY_POLICY.validate_category_deletion(category, user_id, category_in_use_checker)
-        
         return self.safe_execute(
             lambda: self._delete(category),
             error_message="Failed to delete category"

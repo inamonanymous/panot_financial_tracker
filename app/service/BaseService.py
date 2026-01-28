@@ -1,5 +1,6 @@
 from abc import ABC
 from app.utils.exceptions.ServiceError import ServiceError
+from app.utils.exceptions.PolicyError import PolicyError
 from app.ext import db
 import re
 from app.policies.p_UserPolicy import UserPolicy
@@ -41,13 +42,18 @@ class BaseService(ABC):
         try:
             return func()
         except ServiceError as e:
+            # If Use case error, raise it normally
+            raise e
+            db.session.rollback()
+        except PolicyError as e:
             # If validation error, raise it normally
             raise e
+            db.session.rollback()
         except Exception as e:
             # Any unknown error triggers ServiceError
             print(e)  # optional logging
+            db.session.rollback()
             raise ServiceError(error_message)
-
 
     def _save(self, instance):
         db.session.add(instance)
