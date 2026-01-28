@@ -27,7 +27,6 @@ class FinancialCalculationsPolicy(BasePolicy):
              - total_saving_deposits
         )
     
-
     def validate_insert_debt(self, data: dict) -> dict:
         """
         Validates debt insertion with validated and cleaned data.
@@ -73,6 +72,18 @@ class FinancialCalculationsPolicy(BasePolicy):
             clean["interest_rate"],
             field_name="Interest Rate",
             allow_zero=False
+        )
+        clean["start_date"] = self.validate_date_value(
+            clean["start_date"],
+            "Start Date",
+            allow_future=False,
+            allow_past=True
+        )
+        clean["due_date"] = self.validate_date_value(
+            clean["due_date"],
+            "Due Date",
+            allow_future=True,
+            allow_past=False
         )
         self.validate_allowed_debt_amounts(
             principal=clean["principal"],
