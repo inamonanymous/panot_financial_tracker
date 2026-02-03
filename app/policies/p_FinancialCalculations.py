@@ -2,7 +2,7 @@ from app.policies.BasePolicy import BasePolicy
 from app.utils.exceptions import PolicyError
 
 class FinancialCalculationsPolicy(BasePolicy):
-    def caculate_current_amount_of_user(
+    def calculate_current_amount_of_user(
             self,
             total_income: float, 
             total_expense: float, 
@@ -157,8 +157,7 @@ class FinancialCalculationsPolicy(BasePolicy):
                 raise PolicyError("Interest rate should not exceed by 6%")
             if interest_rate < 0:
                 raise PolicyError("Interest rate should not accept negative values")
-            
-        
+              
     def validate_debt_deletion(debt: object, current_user_id):
         """ 
             Validates debt deletion fields raises PolicyError
@@ -176,6 +175,10 @@ class FinancialCalculationsPolicy(BasePolicy):
             raise PolicyError("No debt record found")
         if debt.user_id != current_user_id:
             raise PolicyError(f"Cannot delete debt user don't own '{debt.name}'")
+        
+    def is_debt_present(self, debt: object):
+        if debt is None:
+            raise PolicyError("Cannot find Debt Data")
         
 
 

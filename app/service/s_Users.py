@@ -132,16 +132,38 @@ class UserService(BaseService):
             .scalar()
         )
         
-        total_debt_payments = (
+        """ total_debt_payments = (
             DebtPayments.query
             .with_entities(func.coalesce(func.sum(DebtPayments.amount), 0))
             .filter(DebtPayments.user_id == user_id)
             .scalar()
+        ) """
+
+        total_debt_payments = (
+            db.session.query(func.coalesce(func.sum(Income.amount), 0))
+            .join(
+                DebtPayments,
+                DebtPayments.income_id == Income.id
+            )
+            .filter(DebtPayments.user_id == user_id)
+            .filter(DebtPayments.pymt_type == "deposit")
+            .scalar()
         )
         
-        total_saving_deposits = (
+        """ total_saving_deposits = (
             SavingTransactions.query
             .with_entities(func.coalesce(func.sum(SavingTransactions.amount), 0))
+            .filter(SavingTransactions.user_id == user_id)
+            .filter(SavingTransactions.txt_type == "deposit")
+            .scalar()
+        ) """
+
+        total_saving_deposits = (
+            db.session.query(func.coalesce(func.sum(Income.amount), 0))
+            .join(
+                SavingTransactions,
+                SavingTransactions.income_id == Income.id
+            )
             .filter(SavingTransactions.user_id == user_id)
             .filter(SavingTransactions.txt_type == "deposit")
             .scalar()

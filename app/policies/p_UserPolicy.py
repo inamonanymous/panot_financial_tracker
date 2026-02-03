@@ -43,8 +43,14 @@ class UserPolicy(BasePolicy):
             Return:
                 filtered_user_data: String        
         """
-        user_data['firstname'] = self.validate_user_name(user_data['firstname'], "Firstname")
-        user_data['lastname']  = self.validate_user_name(user_data['lastname'], "Lastname")
+        user_data['firstname'] = self.validate_user_name(
+            user_data['firstname'], 
+            field_name="Firstname"
+        )
+        user_data['lastname']  = self.validate_user_name(
+            user_data['lastname'], 
+            field_name="Lastname"
+        )
         user_data['email']     = self.validate_email_string(user_data['email'])
         user_data['password_hash']  = self.validate_password_string(
                         user_data['password_hash'],

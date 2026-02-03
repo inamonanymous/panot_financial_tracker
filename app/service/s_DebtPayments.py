@@ -2,6 +2,7 @@ from app.service import db
 from app.model.m_DebtPayments import DebtPayments
 from app.model.m_Debts import Debts
 from app.model.m_Categories import Categories
+from app.model.m_Income import Income
 from app.model.m_Expenses import Expenses
 from sqlalchemy.exc import SQLAlchemyError
 from app.ext import dt
@@ -34,7 +35,8 @@ class DebtPaymentsService(BaseService):
         #query debt by id and user id
         debt = self.get_debt_by_id_and_userid(filtered_debt_payment_data["debt_id"], filtered_debt_payment_data["user_id"])
         #check if debt is present here ------------------
-        
+        self.FINANCIALCALCULATIONS_POLICY.is_debt_present(debt)
+
         #create category string from debt.lender
         generated_category_string = self.create_category_string(debt.lender)
 
@@ -139,14 +141,19 @@ class DebtPaymentsService(BaseService):
             error_message="Failed to delete debt payment"
         )
     
-    def calculate_total_debt_payments_by_userid(self, user_id: int) -> float:
+    def calculate_total_debt_payments_by_userid(self, id, user_id: int) -> float:
         total = (
-            DebtPayments.query
-            .with_entities(func.coalesce(func.sum(DebtPayments.amount), 0))
+            db.session.query(func.coalesce(func.sum(Income.amount), 0))
+            .join(
+                DebtPayments,
+                DebtPayments.income_id == Income.id
+            )
             .filter(DebtPayments.user_id == user_id)
+            .filter(DebtPayments.pymt_type == "deposit")
             .scalar()
         )
-        return float(total)
+
+        return total
     
 
     def get_category_by_name_and_userid(self, name: str, user_id) -> object:

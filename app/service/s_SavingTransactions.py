@@ -1,4 +1,6 @@
 from app.model.m_SavingTransactions import db, SavingTransactions
+from app.model.m_Income import Income
+from app.model.m_Expenses import Expenses
 from sqlalchemy.exc import SQLAlchemyError
 from app.ext import dt
 from app.utils.exceptions import ServiceError
@@ -97,21 +99,31 @@ class SavingTransactionsService(BaseService):
     
     def calculate_total_saving_deposits_by_userid(self, user_id: int) -> float:
         total = (
-            SavingTransactions.query
-            .with_entities(func.coalesce(func.sum(SavingTransactions.amount), 0))
+            db.session.query(func.coalesce(func.sum(Income.amount), 0))
+            .join(
+                SavingTransactions,
+                SavingTransactions.income_id == Income.id
+            )
             .filter(SavingTransactions.user_id == user_id)
             .filter(SavingTransactions.txt_type == "deposit")
             .scalar()
         )
+
         return float(total)
+
         
     def calculate_total_saving_withdraws_by_userid(self, user_id: int) -> float:
         total = (
-            SavingTransactions.query
-            .with_entities(func.coalesce(func.sum(SavingTransactions.amount), 0))
+            db.session.query(func.coalesce(func.sum(Expenses.amount), 0))
+            .join(
+                SavingTransactions,
+                SavingTransactions.expense_id == Expenses.id
+            )
             .filter(SavingTransactions.user_id == user_id)
             .filter(SavingTransactions.txt_type == "withdraw")
             .scalar()
         )
+
         return float(total)
+
         
