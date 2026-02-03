@@ -1,6 +1,6 @@
 from flask import redirect, session, url_for
 from functools import wraps
-from app.service import US_INS
+from app.service import UOW
 from app.utils.exceptions.ServiceError import ServiceError
 
 def require_user_session(f):
@@ -14,6 +14,10 @@ def require_user_session(f):
 def get_current_user():
     x = session.get('user_email')
     if 'user_email' in session:
-        return US_INS.get_user_by_email(session.get('user_email'))
+        # Use UserRepository from UoW to fetch user by email
+        user = UOW.users.get_by_email(session.get('user_email'))
+        if not user:
+            raise ServiceError('User not found')
+        return user
     else:
         raise ServiceError('No user in session')

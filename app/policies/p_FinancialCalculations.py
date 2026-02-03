@@ -1,31 +1,11 @@
-from app.policies.BasePolicy import BasePolicy
+from app.domain.policies.BasePolicy import BasePolicy
 from app.utils.exceptions import PolicyError
 
 class FinancialCalculationsPolicy(BasePolicy):
-    def calculate_current_amount_of_user(
-            self,
-            total_income: float, 
-            total_expense: float, 
-            total_debt_payments: float,
-            total_saving_deposits:float
-    ) -> float:
-        """ 
-            Calculates current amount of a user in the record and returns difference of expense, debt payments, and saving deposits from income
-            Param:
-                * total_income: Float
-                * total_expense: Float
-                * total_debt_payments: Float
-                * total_saving_deposits: Float
-            Return:
-                Float
-        """
-
-        return float(
-            total_income 
-             - total_expense
-             - total_debt_payments
-             - total_saving_deposits
-        )
+    """
+    INPUT VALIDATION ONLY - Pure validation of debt-related data.
+    Business calculations are in domain/services/debt_calculator.py
+    """
     
     def validate_insert_debt(self, data: dict) -> dict:
         """

@@ -1,4 +1,4 @@
-from app.policies.BasePolicy import BasePolicy
+from app.domain.policies.BasePolicy import BasePolicy
 from app.utils.exceptions import PolicyError
 import re
 
