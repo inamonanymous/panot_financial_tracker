@@ -1,8 +1,12 @@
 from flask import Blueprint, render_template, redirect, session, url_for, request
 from functools import wraps
-from app.service import US_INS, IS_INS, ES_INS, DS_INS, DPS_INS, STS_INS, CS_INS
 from app.utils.exceptions.ServiceError import ServiceError
 from app.routes.functions import require_user_session, get_current_user
+from app.service import UOW
+from app.use_cases.create_debt_payment import CreateDebtPaymentUseCase
+from app.use_cases.dashboard_reporting import DashboardReportingUseCase
+from app.use_cases.create_user import CreateUserUseCase
+from app.use_cases.check_login import CheckLoginUseCase
 users = Blueprint(
     'users',
     __name__,
@@ -24,13 +28,13 @@ def login():
     
     try:
         args = request.form
-        user = US_INS.check_login(
+        user = CheckLoginUseCase(UOW).execute(
             args['email'],
             args['password']
         )
         session['user_email'] = user.email
         return redirect(url_for('users.dashboard'))
-    except ServiceError as e:
+    except Exception as e:
         return redirect(url_for('users.login', error_message=str(e)))
 
 import datetime
@@ -38,29 +42,45 @@ import datetime
 @require_user_session
 def dashboard():
     user = get_current_user()
-    """ debts_data = {
-        "user_id": 1,
-        "debt_id": 1
-    }
-    expense_data = {
-        "user_id": 1,
-        "debt_id": 1,
-        "amount": 150,
-        "expense_date": datetime.datetime.now().date(),
-        "payment_method": "cash",
-        "remarks": ""
-    }
-    DPS_INS.insert_debt_payment(
-        debt_data=debts_data,
-        expense_data=expense_data
-    ) """
+    user_id = int(user.id)
+    
+    # Use new DashboardReportingUseCase with repositories
+    reporting_use_case = DashboardReportingUseCase(UOW)
+    dashboard_data = reporting_use_case.execute(user_id)
+    
     return render_template('auth/pages/dashboard.html', 
-                           user=get_current_user(), 
-                           total_income=IS_INS.calculate_total_income_by_userid(int(user.id)),
-                           total_expense=ES_INS.calculate_total_expense_by_userid(int(user.id)),
-                           total_saving_transactions=STS_INS.calculate_total_saving_deposits_by_userid(int(user.id)),
-                           user_total_value=US_INS.calculate_current_amount_by_userid(int(user.id))
+                           user=user,
+                           total_income=dashboard_data["total_income"],
+                           total_expense=dashboard_data["total_expense"],
+                           total_saving_transactions=dashboard_data["total_saving_deposits"],
+                           user_total_value=dashboard_data["user_total_value"]
                            )
+
+
+@users.route('/debt_payment', methods=['POST'])
+@require_user_session
+def create_debt_payment():
+    user = get_current_user()
+    args = request.form
+    debt_data = {
+        "user_id": int(user.id),
+        "debt_id": int(args.get('debt_id')),
+    }
+
+    expense_data = {
+        "user_id": int(user.id),
+        "amount": float(args.get('amount')),
+        "expense_date": args.get('expense_date'),
+        "payment_method": args.get('payment_method'),
+        "remarks": args.get('remarks', ""),
+    }
+
+    use_case = CreateDebtPaymentUseCase(UOW)
+    try:
+        dp = use_case.execute(debt_data, expense_data)
+        return redirect(url_for('users.dashboard'))
+    except Exception as e:
+        return redirect(url_for('users.dashboard', error_message=str(e)))
 
 @users.route('/logout')
 @require_user_session
@@ -74,7 +94,7 @@ def registration():
         return render_template('public/register.html')
     
     args = request.form
-
+    
     user_data = {
         'firstname': args['firstname'],
         'lastname': args['lastname'],
@@ -83,9 +103,11 @@ def registration():
         'password2': args['password2']
     }
     
+    # Use new CreateUserUseCase with repositories
+    use_case = CreateUserUseCase(UOW)
     try:
-        new_user = US_INS.insert_user(user_data)
+        new_user = use_case.execute(user_data)
         return redirect(url_for('users.index', email = new_user.email))
-    except ServiceError as e:
+    except Exception as e:
         return render_template('public/register.html', error_message=str(e))
     

@@ -5,17 +5,6 @@ import re
 
 class UserPolicy(BasePolicy):
     def validate_login(self, email: str, password: str, user) -> None:
-        """ 
-            Validates user login authentication
-            
-            Param:
-                * email: String
-                * password: String
-            Return:
-                Void
-            Exception:
-                Will raise PolicyError when no user found in database upon the email or wrong password input
-        """
         email = self.validate_email_string(email)
 
         password = self.validate_password_string(
@@ -31,18 +20,6 @@ class UserPolicy(BasePolicy):
             raise PolicyError("Invalid Password")
 
     def validate_user_registration(self, user_data: dict) -> dict:
-        """ 
-            Validates user registration and returns filtered fields from received data
-            
-            Param:
-                data: Dictionary
-                    * firstname: String
-                    * lastname: String
-                    * email: String
-                    * password_hash: String
-            Return:
-                filtered_user_data: String        
-        """
         user_data['firstname'] = self.validate_user_name(
             user_data['firstname'], 
             field_name="Firstname"
@@ -70,16 +47,6 @@ class UserPolicy(BasePolicy):
         return filtered_user_data
     
     def validate_user_editing(self, user_data: dict, user: object) -> dict:
-        """ 
-            Validates user edit record and returns filtered fields from received data
-            
-            Param:
-                user_data: Dictionary
-                    * firstname: String
-                    * lastname: String
-            Return:
-                clean: String
-        """
         if user is None:
             raise PolicyError(f"User not found")
 
@@ -103,17 +70,6 @@ class UserPolicy(BasePolicy):
         return clean
     
     def validate_user_name(self, value: str, *, field_name: str) -> str:
-        """ 
-            Validates user firstname and lastname validity
-            
-            Param:
-                * value: String
-                * field_name: String
-                * min_len: Int
-            Return:
-                clean: value
-        """
-        
         value = self.validate_string(value, field_name, min_len=2)
 
         if not re.fullmatch(r"^[A-Za-z]+(?: [A-Za-z]+)*$", value):
@@ -122,4 +78,3 @@ class UserPolicy(BasePolicy):
             )
 
         return value
-    
