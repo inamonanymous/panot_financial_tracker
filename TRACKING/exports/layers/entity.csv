@@ -1,0 +1,7 @@
+"Index","Item ID","Title","Layer","Class","Status","WIP","Assignee","Tested","Prerequisites","Code Location","Notes"
+"14","DE-001","app/domain/entities/user.py","entity","User","Done","","inamonanymous","Not Tested","","app/domain/entities/user.py","Domain entity for users"
+"15","DE-002","app/domain/entities/category.py","entity","Category","Done","","inamonanymous","Not Tested","","app/domain/entities/category.py","Income/expense categories"
+"16","DE-003","app/domain/entities/expense.py","entity","Expense","Done","","inamonanymous","Not Tested","","app/domain/entities/expense.py","Expense domain entity"
+"17","DE-004","app/domain/entities/income.py","entity","Income","Done","","inamonanymous","Not Tested","","app/domain/entities/income.py","Income domain entity"
+"18","DE-005","app/domain/entities/debt.py","entity","Debt","Done","","inamonanymous","Not Tested","","app/domain/entities/debt.py","Debt domain entity"
+"19","DE-006","app/domain/entities/saving_goal.py","entity","Saving goal","Done","","inamonanymous","Not Tested","","app/domain/entities/saving_goal.py","Saving goal domain entity"

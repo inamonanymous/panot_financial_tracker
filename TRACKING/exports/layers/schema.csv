@@ -1,0 +1,7 @@
+"Index","Item ID","Title","Layer","Class","Status","WIP","Assignee","Tested","Prerequisites","Code Location","Notes"
+"70","DB-001","migrations/versions/337101cc7d91_create_new_column_payment_method_in_.py","schema","Add payment_method","Done","","inamonanymous","Not Tested","","migrations/versions/337101cc7d91_create_new_column_payment_method_in_.py",""
+"71","DB-002","migrations/versions/61f19152c4f3_removed_current_amount_in_savinggoals_.py","schema","Remove current_amount","Done","","inamonanymous","Not Tested","","migrations/versions/61f19152c4f3_removed_current_amount_in_savinggoals_.py",""
+"72","DB-003","migrations/versions/764443cb1025_added_income_and_expense_to_.py","schema","Add income/expense","Done","","inamonanymous","Not Tested","","migrations/versions/764443cb1025_added_income_and_expense_to_.py",""
+"73","DB-004","migrations/versions/838adc18a29b_added_column_name_at_debts_model.py","schema","Add name to debts","Done","","inamonanymous","Not Tested","","migrations/versions/838adc18a29b_added_column_name_at_debts_model.py",""
+"74","DB-005","migrations/versions/a6ed751b5903_initial_migration_forgot_category_id_in_.py","schema","Initial migration / fix","Done","","inamonanymous","Not Tested","","migrations/versions/a6ed751b5903_initial_migration_forgot_category_id_in_.py",""
+"75","DB-006","migrations/versions/c8177ce4d8ec_.py","schema","Unknown","Not started","","inamonanymous","Not Tested","","migrations/versions/c8177ce4d8ec_.py","Review migration name"

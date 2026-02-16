@@ -1,0 +1,5 @@
+"Index","Item ID","Title","Layer","Class","Status","WIP","Assignee","Tested","Prerequisites","Code Location","Notes"
+"10","R-001","app/routes/r_users.py","route","","Done","","inamonanymous","Not Tested","","app/routes/r_users.py","Auth, dashboard, debt payment"
+"11","R-002","app/routes/r_expense.py","route","","Done","","inamonanymous","Not Tested","","app/routes/r_expense.py","Expense page + modal categories"
+"12","R-003","app/routes/r_income.py","route","","Done","","inamonanymous","Not Tested","","app/routes/r_income.py","Income page + modal categories"
+"13","R-004","app/routes/functions.py","route","","Done","","inamonanymous","Not Tested","","app/routes/functions.py","Route helpers (session, current user)"

@@ -56,6 +56,9 @@ class UserRepositoryImpl(UserRepository):
         db.session.flush()
         return entity
 
+    def create(self, **kwargs) -> DomainUser:
+        return DomainUser(**kwargs)
+
     def delete(self, entity_id: int) -> bool:
         orm = UserORM.query.filter_by(id=entity_id).first()
         if orm is None:

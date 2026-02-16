@@ -121,6 +121,9 @@ class DebtRepositoryImpl(DebtRepository):
         db.session.delete(orm)
         return True
 
+    def create(self, **kwargs) -> DomainDebt:
+        return DomainDebt(**kwargs)
+
     def get_all(self):
         orms = DebtORM.query.all()
         return [

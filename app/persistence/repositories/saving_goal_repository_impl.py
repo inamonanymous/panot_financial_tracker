@@ -102,6 +102,9 @@ class SavingGoalRepositoryImpl(SavingGoalRepository):
         db.session.delete(orm)
         return True
 
+    def create(self, **kwargs) -> DomainSavingGoal:
+        return DomainSavingGoal(**kwargs)
+
     def get_all(self):
         orms = SavingGoalORM.query.all()
         goals = []

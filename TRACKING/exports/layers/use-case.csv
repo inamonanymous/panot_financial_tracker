@@ -1,0 +1,3 @@
+"Index","Item ID","Title","Layer","Class","Status","WIP","Assignee","Tested","Prerequisites","Code Location","Notes"
+"1","UC-001","CheckLoginUseCase","use-case","","Not started","","inamonanymous","Not Tested","","`app\use_cases\check_login.py`",""
+"2","UC-002","CreateDebtPaymentUseCase","use-case","","Not started","","inamonanymous","Not Tested","","`app\use_cases\create_debt_payment.py`",""

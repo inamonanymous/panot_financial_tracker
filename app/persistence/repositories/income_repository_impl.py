@@ -107,6 +107,9 @@ class IncomeRepositoryImpl(IncomeRepository):
         db.session.flush()
         return entity
 
+    def create(self, **kwargs) -> DomainIncome:
+        return DomainIncome(**kwargs)
+
     def delete(self, entity_id: int) -> bool:
         orm = IncomeORM.query.filter_by(id=entity_id).first()
         if orm is None:

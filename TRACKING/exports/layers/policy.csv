@@ -1,0 +1,7 @@
+"Index","Item ID","Title","Layer","Class","Status","WIP","Assignee","Tested","Prerequisites","Code Location","Notes"
+"47","P-001","app/domain/policies/p_UserPolicy.py","policy","User validation & auth rules","Done","","inamonanymous","Not Tested","","app/domain/policies/p_UserPolicy.py","Login + registration validation"
+"48","P-002","app/domain/policies/p_TransactionPolicy.py","policy","Transaction validation","Done","","inamonanymous","Not Tested","","app/domain/policies/p_TransactionPolicy.py","Income/expense validation"
+"49","P-003","app/domain/policies/p_CategoryPolicy.py","policy","Category rules","Done","","inamonanymous","Not Tested","","app/domain/policies/p_CategoryPolicy.py","Category constraints"
+"50","P-004","app/domain/policies/p_FinancialCalculations.py","policy","Financial calculations rules","Done","","inamonanymous","Not Tested","","app/domain/policies/p_FinancialCalculations.py","Debt / savings logic"
+"51","P-005","app/domain/policies/BasePolicy.py","policy","Base policy","Done","","inamonanymous","Not Tested","","app/domain/policies/BasePolicy.py","Base policy utilities"
+"52","S-001","S-001","policy","Service container / UOW exposure","Done","","inamonanymous","Not Tested","","","Exposes `UOW`"

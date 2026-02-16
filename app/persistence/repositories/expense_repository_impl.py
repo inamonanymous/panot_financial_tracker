@@ -107,6 +107,9 @@ class ExpenseRepositoryImpl(ExpenseRepository):
         db.session.flush()
         return entity
 
+    def create(self, **kwargs) -> DomainExpense:
+        return DomainExpense(**kwargs)
+
     def delete(self, entity_id: int) -> bool:
         orm = ExpenseORM.query.filter_by(id=entity_id).first()
         if orm is None:

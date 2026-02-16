@@ -1,0 +1,4 @@
+"Index","Item ID","Title","Layer","Class","Status","WIP","Assignee","Tested","Prerequisites","Code Location","Notes"
+"76","D-001","README.md","docs","Project overview","Done","","inamonanymous","Not Tested","","README.md",""
+"77","D-002","PROJECT_GUIDE.md","docs","Setup guide","Done","","inamonanymous","Not Tested","","PROJECT_GUIDE.md",""
+"78","D-003","DEVELOPMENT_ROADMAP.md","docs","Roadmap","Done","","inamonanymous","Not Tested","","DEVELOPMENT_ROADMAP.md",""

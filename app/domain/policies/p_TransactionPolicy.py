@@ -28,7 +28,7 @@ class TransactionPolicy(BasePolicy):
         clean = self.create_resource(data, allowed=["category_id", "source", "payment_method","remarks"])
 
         if "category_id" in clean:
-            clean["category_id"] =  self.validate_numeric_values(clean["category_id"], "Category ID", allow_zero=False)
+            clean["category_id"] =  self.validate_id_values(clean["category_id"], "Category ID")
         if "source" in clean:
             clean["source"] = self.validate_string(clean["source"], "Source", min_len=3)
         if "payment_method" in clean:
@@ -71,7 +71,7 @@ class TransactionPolicy(BasePolicy):
         clean = self.create_resource(data, allowed=["category_id", "payee", "payment_method", "expense_date", "remarks"])
 
         if "category_id" in clean:
-            clean["category_id"] =  self.validate_numeric_values(clean["category_id"], "Category ID", allow_zero=False)
+            clean["category_id"] =  self.validate_id_values(clean["category_id"], "Category ID")
         if "payee" in clean:
             clean["payee"] = self.validate_string(clean["payee"], "Payee", min_len=3)
         if "payment_method" in clean:
@@ -99,8 +99,8 @@ class TransactionPolicy(BasePolicy):
             allowed=["user_id","debt_id","expense_id"]
         )
         clean["pymt_type"] = "deposit"
-        clean["user_id"] = self.validate_numeric_values(clean["user_id"], "User ID", allow_zero=False)
-        clean["debt_id"] = self.validate_numeric_values(clean["debt_id"], "Debt ID", allow_zero=False)
+        clean["user_id"] = self.validate_id_values(clean["user_id"], "User ID")
+        clean["debt_id"] = self.validate_id_values(clean["debt_id"], "Debt ID")
         clean["pymt_type"] = self.validate_payment_type(clean["pymt_type"])
         return clean
 

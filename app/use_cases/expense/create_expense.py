@@ -1,5 +1,4 @@
 from app.domain.policies.p_TransactionPolicy import TransactionPolicy
-from app.domain.entities.expense import Expense
 
 class CreateExpenseUseCase:
     def __init__(self, unit_of_work):
@@ -13,15 +12,7 @@ class CreateExpenseUseCase:
         if not category:
             raise Exception("Category not found or does not belong to user")
         
-        expense = Expense(
-            user_id=clean_expense["user_id"],
-            category_id=clean_expense["category_id"],
-            payee=clean_expense["payee"],
-            amount=clean_expense["amount"],
-            expense_date=clean_expense["expense_date"],
-            payment_method=clean_expense["payment_method"],
-            remarks=clean_expense.get("remarks", "")
-        )
+        expense = self.uow.expenses.create(**clean_expense)
 
         with self.uow.transaction():
             saved = self.uow.expenses.save(expense)
