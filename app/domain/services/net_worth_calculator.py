@@ -44,6 +44,29 @@ class NetWorthCalculator:
         return float(total_income - total_expenses - total_debt_principal + total_savings)
     
     @staticmethod
+    def calculate_net_value(total_income: float, total_expense:float, total_saving_deposits: float) -> float:
+        """
+        Calculate net value (income - expenses - saving deposits).
+        
+        Args:
+            total_income: Sum of all income
+            total_expense: Sum of all expenses
+            total_saving_deposits: Sum of all saving deposits
+        
+        Returns:
+            Net value amount (can be negative)
+        
+        Example:
+            net_value = NetWorthCalculator.calculate_net_value(
+                total_income=10000,
+                total_expense=3000,
+                total_saving_deposits=1500
+            )
+            # Result: 10000 - 3000 - 1500 = 5500
+        """
+        return float(total_income - total_expense - total_saving_deposits)
+
+    @staticmethod
     def calculate_net_income(total_income: float, total_expenses: float) -> float:
         """
         Calculate net income (income - expenses, excluding debts).

@@ -1,0 +1,53 @@
+<div class="modal fade" id="addExpenseModal" tabindex="-1" role="dialog" aria-labelledby="addExpenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="addExpenseModalLabel">Add Expense</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            
+            <form method="POST" action="{{ url_for('expense.insert_expense_route') }}">
+                <div class="form-group">
+                    <label for="input_category_id">Category</label>
+                    <select class="form-control" id="input_category_id" name="category_id" required>
+                        <option value="">-- Select Category --</option>
+                        {% for cat in user_categories %}  <!-- Get categories from use case -->
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <!-- Source field -->
+                <input type="text" class="form-control" id="input_payee" name="payee" placeholder="Payee name" required>
+
+                <!-- Amount field -->
+                <input type="number" step="0.01" class="form-control" id="input_amount" name="amount" placeholder="0.00" required>
+
+                <!-- Received Date field -->
+                <input type="date" class="form-control" id="input_expense_date" name="expense_date" required>
+
+                <!-- Payment Method field -->
+                <select class="form-control" id="input_method" name="payment_method">
+                    <option value="cash">Cash</option>
+                    <option value="gcash">G-Cash</option>
+                    <option value="bank">Bank</option>
+                    <option value="card">Card</option>
+                    <option value="other">Other</option>
+                </select>
+
+                <!-- Remarks field -->
+                <textarea class="form-control" id="input_remarks" name="remarks" placeholder="Optional notes"></textarea>
+
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-primary">Add expense</button>
+            </form>
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+        </div>
+    </div>
+</div>

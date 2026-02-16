@@ -1,0 +1,6 @@
+"Index","Item ID","Title","Layer","Class","Status","WIP","Assignee","Tested","Prerequisites","Code Location","Notes"
+"65","Q-001","Unit tests for use-cases","quality","Unit tests for use-cases","Not started","","inamonanymous","Not Tested","","","Start with auth + income/expense"
+"66","Q-002","Integration tests for routes","quality","Integration tests for routes","Not started","","inamonanymous","Not Tested","","","Validate happy-path flows"
+"67","Q-003","Migrations up to date","quality","Migrations up to date","Not started","","inamonanymous","Not Tested","","","Verify alembic history"
+"68","Q-004","Password hashing","quality","Password hashing","Done","","inamonanymous","Not Tested","","","Uses werkzeug hash check"
+"69","Q-005","Policy coverage","quality","Policy coverage","Done","","inamonanymous","Not Tested","","","User + transaction policies"

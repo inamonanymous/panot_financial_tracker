@@ -1,5 +1,5 @@
 """Create User Use Case - Orchestrates user registration using UOW and policies."""
-from app.model.m_Users import Users
+from app.domain.entities import User as DomainUser
 from app.domain.policies.p_UserPolicy import UserPolicy
 from app.ext import db
 from sqlalchemy.exc import IntegrityError
@@ -12,7 +12,7 @@ class CreateUserUseCase:
         self.uow = unit_of_work
         self.user_policy = UserPolicy()
 
-    def execute(self, user_data: dict) -> Users:
+    def execute(self, user_data: dict) -> DomainUser:
         """
         Register a new user with validated data.
         
@@ -25,7 +25,7 @@ class CreateUserUseCase:
                 - password2: str (confirmation)
         
         Returns:
-            Users ORM instance (persisted)
+            DomainUser instance (persisted)
         
         Raises:
             Exception: If validation fails or user already exists
@@ -34,8 +34,8 @@ class CreateUserUseCase:
         filtered_user_data = self.user_policy.validate_user_registration(user_data)
 
         # Create ORM instance
-        new_user = Users(**filtered_user_data)
-
+        new_user = self.uow.users.create(**filtered_user_data)
+    
         # Save within transaction
         try:
             with self.uow.transaction():

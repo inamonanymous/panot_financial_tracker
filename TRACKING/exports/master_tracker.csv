@@ -1,0 +1,85 @@
+Index,Item ID,Title,Layer,Class,Status,WIP,Assignee,Tested,Prerequisites,Code Location,Notes
+1,UC-001,CheckLoginUseCase,use-case,,Not started,,inamonanymous,Not Tested,,`app\use_cases\check_login.py`,
+2,UC-002,CreateDebtPaymentUseCase,use-case,,Not started,,inamonanymous,Not Tested,,`app\use_cases\create_debt_payment.py`,
+3,F-001,Authentication & User management,feature,,Done,,inamonanymous,Not Tested,,,Add unit + integration tests for registration/login flows
+4,F-002,Dashboard & Reporting,feature,,Done,,inamonanymous,Not Tested,,,Consider performance tests / caching
+5,F-003,Income management (CRUD),feature,,Done,,inamonanymous,Not Tested,,,Add input validation tests
+6,F-004,Expense management (CRUD),feature,,Done,,inamonanymous,Not Tested,,,Add pagination and edge-case tests
+7,F-005,Debt handling & payments,feature,,Done,,inamonanymous,Not Tested,,,Ensure category creation edge-cases handled
+8,F-006,Categories & lookup,feature,,Done,,inamonanymous,Not Tested,,,Ensure category ownership is enforced
+9,F-007,Saving goals & transactions,feature,,Work in Progress,Yes,inamonanymous,Not Tested,,,Add missing use-cases if any
+10,R-001,app/routes/r_users.py,route,,Done,,inamonanymous,Not Tested,,app/routes/r_users.py,"Auth, dashboard, debt payment"
+11,R-002,app/routes/r_expense.py,route,,Done,,inamonanymous,Not Tested,,app/routes/r_expense.py,Expense page + modal categories
+12,R-003,app/routes/r_income.py,route,,Done,,inamonanymous,Not Tested,,app/routes/r_income.py,Income page + modal categories
+13,R-004,app/routes/functions.py,route,,Done,,inamonanymous,Not Tested,,app/routes/functions.py,"Route helpers (session, current user)"
+14,DE-001,app/domain/entities/user.py,entity,User,Done,,inamonanymous,Not Tested,,app/domain/entities/user.py,Domain entity for users
+15,DE-002,app/domain/entities/category.py,entity,Category,Done,,inamonanymous,Not Tested,,app/domain/entities/category.py,Income/expense categories
+16,DE-003,app/domain/entities/expense.py,entity,Expense,Done,,inamonanymous,Not Tested,,app/domain/entities/expense.py,Expense domain entity
+17,DE-004,app/domain/entities/income.py,entity,Income,Done,,inamonanymous,Not Tested,,app/domain/entities/income.py,Income domain entity
+18,DE-005,app/domain/entities/debt.py,entity,Debt,Done,,inamonanymous,Not Tested,,app/domain/entities/debt.py,Debt domain entity
+19,DE-006,app/domain/entities/saving_goal.py,entity,Saving goal,Done,,inamonanymous,Not Tested,,app/domain/entities/saving_goal.py,Saving goal domain entity
+20,M-001,app/model/m_Users.py,model,Users,Done,,inamonanymous,Not Tested,,app/model/m_Users.py,ORM users table
+21,M-002,app/model/m_Categories.py,model,Categories,Done,,inamonanymous,Not Tested,,app/model/m_Categories.py,ORM categories table
+22,M-003,app/model/m_Expenses.py,model,Expenses,Done,,inamonanymous,Not Tested,,app/model/m_Expenses.py,ORM expenses table
+23,M-004,app/model/m_Income.py,model,Income,Done,,inamonanymous,Not Tested,,app/model/m_Income.py,ORM income table
+24,M-005,app/model/m_Debts.py,model,Debts,Done,,inamonanymous,Not Tested,,app/model/m_Debts.py,ORM debts table
+25,M-006,app/model/m_DebtPayments.py,model,DebtPayments,Done,,inamonanymous,Not Tested,,app/model/m_DebtPayments.py,ORM debt payments table
+26,M-007,app/model/m_SavingGoals.py,model,SavingGoals,Done,,inamonanymous,Not Tested,,app/model/m_SavingGoals.py,ORM saving goals table
+27,M-008,app/model/m_SavingTransactions.py,model,SavingTransactions,Done,,inamonanymous,Not Tested,,app/model/m_SavingTransactions.py,ORM saving transactions table
+28,M-009,app/model/m_Admin.py,model,Admin,Done,,inamonanymous,Not Tested,,app/model/m_Admin.py,Admin table (if used)
+29,RI-001,app/repositories/user_repository.py,repository,User,Done,,inamonanymous,Not Tested,,app/repositories/user_repository.py,Interface / base patterns
+30,RI-002,app/repositories/category_repository.py,repository,Category,Done,,inamonanymous,Not Tested,,app/repositories/category_repository.py,Interface / base patterns
+31,RI-003,app/repositories/expense_repository.py,repository,Expense,Done,,inamonanymous,Not Tested,,app/repositories/expense_repository.py,Interface / base patterns
+32,RI-004,app/repositories/income_repository.py,repository,Income,Done,,inamonanymous,Not Tested,,app/repositories/income_repository.py,Interface / base patterns
+33,RI-005,app/repositories/debt_repository.py,repository,Debt,Done,,inamonanymous,Not Tested,,app/repositories/debt_repository.py,Interface / base patterns
+34,RI-006,app/repositories/debt_payments_repository.py,repository,DebtPayment,Done,,inamonanymous,Not Tested,,app/repositories/debt_payments_repository.py,Interface / base patterns
+35,RI-007,app/repositories/saving_goal_repository.py,repository,SavingGoal,Done,,inamonanymous,Not Tested,,app/repositories/saving_goal_repository.py,Interface / base patterns
+36,RI-008,app/repositories/saving_transactions_repository.py,repository,SavingTransaction,Done,,inamonanymous,Not Tested,,app/repositories/saving_transactions_repository.py,Interface / base patterns
+37,RI-009,app/repositories/repository.py,repository,Base repository,Done,,inamonanymous,Not Tested,,app/repositories/repository.py,Base repository pattern
+38,R-IMPL-001,app/persistence/repositories/user_repository_impl.py,repository,User,Done,,inamonanymous,Not Tested,,app/persistence/repositories/user_repository_impl.py,ORM-backed implementation
+39,R-IMPL-002,app/persistence/repositories/category_repository_impl.py,repository,Category,Done,,inamonanymous,Not Tested,,app/persistence/repositories/category_repository_impl.py,ORM-backed implementation
+40,R-IMPL-003,app/persistence/repositories/expense_repository_impl.py,repository,Expense,Done,,inamonanymous,Not Tested,,app/persistence/repositories/expense_repository_impl.py,ORM-backed implementation
+41,R-IMPL-004,app/persistence/repositories/income_repository_impl.py,repository,Income,Done,,inamonanymous,Not Tested,,app/persistence/repositories/income_repository_impl.py,ORM-backed implementation
+42,R-IMPL-005,app/persistence/repositories/debt_repository_impl.py,repository,Debt,Done,,inamonanymous,Not Tested,,app/persistence/repositories/debt_repository_impl.py,ORM-backed implementation
+43,R-IMPL-006,app/persistence/repositories/debt_payment_repository_impl.py,repository,DebtPayment,Done,,inamonanymous,Not Tested,,app/persistence/repositories/debt_payment_repository_impl.py,ORM-backed implementation
+44,R-IMPL-007,app/persistence/repositories/saving_goal_repository_impl.py,repository,SavingGoal,Done,,inamonanymous,Not Tested,,app/persistence/repositories/saving_goal_repository_impl.py,ORM-backed implementation
+45,R-IMPL-008,app/persistence/repositories/saving_transactions_repository_impl.py,repository,SavingTransaction,Done,,inamonanymous,Not Tested,,app/persistence/repositories/saving_transactions_repository_impl.py,ORM-backed implementation
+46,UOW-001,UOW-001,repository,,Done,,inamonanymous,Not Tested,,app/persistence/unit_of_work.py,Provides repositories and transaction scope
+47,P-001,app/domain/policies/p_UserPolicy.py,policy,User validation & auth rules,Done,,inamonanymous,Not Tested,,app/domain/policies/p_UserPolicy.py,Login + registration validation
+48,P-002,app/domain/policies/p_TransactionPolicy.py,policy,Transaction validation,Done,,inamonanymous,Not Tested,,app/domain/policies/p_TransactionPolicy.py,Income/expense validation
+49,P-003,app/domain/policies/p_CategoryPolicy.py,policy,Category rules,Done,,inamonanymous,Not Tested,,app/domain/policies/p_CategoryPolicy.py,Category constraints
+50,P-004,app/domain/policies/p_FinancialCalculations.py,policy,Financial calculations rules,Done,,inamonanymous,Not Tested,,app/domain/policies/p_FinancialCalculations.py,Debt / savings logic
+51,P-005,app/domain/policies/BasePolicy.py,policy,Base policy,Done,,inamonanymous,Not Tested,,app/domain/policies/BasePolicy.py,Base policy utilities
+52,S-001,S-001,policy,Service container / UOW exposure,Done,,inamonanymous,Not Tested,,,Exposes `UOW`
+53,T-001,app/templates/public/login.html,template,Login page,Done,,inamonanymous,Not Tested,,app/templates/public/login.html,Uses `users.login` route
+54,T-002,app/templates/public/register.html,template,Registration page,Done,,inamonanymous,Not Tested,,app/templates/public/register.html,Uses `users.registration` route
+55,T-003,app/templates/public/forgot-password.html,template,Password recovery page,Done,,inamonanymous,Not Tested,,app/templates/public/forgot-password.html,Route wiring TBD
+56,T-101,app/templates/auth/pages/dashboard.html,template,Dashboard,Done,,inamonanymous,Not Tested,,app/templates/auth/pages/dashboard.html,Uses dashboard metrics
+57,T-102,app/templates/auth/pages/expense.html,template,Expense list + modal,Done,,inamonanymous,Not Tested,,app/templates/auth/pages/expense.html,Uses categories + expenses
+58,T-103,app/templates/auth/pages/income.html,template,Income list + modal,Done,,inamonanymous,Not Tested,,app/templates/auth/pages/income.html,Uses categories + income
+59,T-201,app/templates/auth/layout.html,template,Layout shell,Done,,inamonanymous,Not Tested,,app/templates/auth/layout.html,Base layout
+60,T-202,app/templates/auth/partials/topbar.html,template,Top nav,Done,,inamonanymous,Not Tested,,app/templates/auth/partials/topbar.html,
+61,T-203,app/templates/auth/partials/sidebar.html,template,Sidebar nav,Done,,inamonanymous,Not Tested,,app/templates/auth/partials/sidebar.html,
+62,T-204,app/templates/auth/partials/footer.html,template,Footer,Done,,inamonanymous,Not Tested,,app/templates/auth/partials/footer.html,
+63,T-205,app/templates/auth/modals/logout.html,template,Logout modal,Done,,inamonanymous,Not Tested,,app/templates/auth/modals/logout.html,
+64,TST-001,TST-001,test,(none),Not started,,inamonanymous,Not Tested,,,Add unit tests for use-cases
+65,Q-001,Unit tests for use-cases,quality,Unit tests for use-cases,Not started,,inamonanymous,Not Tested,,,Start with auth + income/expense
+66,Q-002,Integration tests for routes,quality,Integration tests for routes,Not started,,inamonanymous,Not Tested,,,Validate happy-path flows
+67,Q-003,Migrations up to date,quality,Migrations up to date,Not started,,inamonanymous,Not Tested,,,Verify alembic history
+68,Q-004,Password hashing,quality,Password hashing,Done,,inamonanymous,Not Tested,,,Uses werkzeug hash check
+69,Q-005,Policy coverage,quality,Policy coverage,Done,,inamonanymous,Not Tested,,,User + transaction policies
+70,DB-001,migrations/versions/337101cc7d91_create_new_column_payment_method_in_.py,schema,Add payment_method,Done,,inamonanymous,Not Tested,,migrations/versions/337101cc7d91_create_new_column_payment_method_in_.py,
+71,DB-002,migrations/versions/61f19152c4f3_removed_current_amount_in_savinggoals_.py,schema,Remove current_amount,Done,,inamonanymous,Not Tested,,migrations/versions/61f19152c4f3_removed_current_amount_in_savinggoals_.py,
+72,DB-003,migrations/versions/764443cb1025_added_income_and_expense_to_.py,schema,Add income/expense,Done,,inamonanymous,Not Tested,,migrations/versions/764443cb1025_added_income_and_expense_to_.py,
+73,DB-004,migrations/versions/838adc18a29b_added_column_name_at_debts_model.py,schema,Add name to debts,Done,,inamonanymous,Not Tested,,migrations/versions/838adc18a29b_added_column_name_at_debts_model.py,
+74,DB-005,migrations/versions/a6ed751b5903_initial_migration_forgot_category_id_in_.py,schema,Initial migration / fix,Done,,inamonanymous,Not Tested,,migrations/versions/a6ed751b5903_initial_migration_forgot_category_id_in_.py,
+75,DB-006,migrations/versions/c8177ce4d8ec_.py,schema,Unknown,Not started,,inamonanymous,Not Tested,,migrations/versions/c8177ce4d8ec_.py,Review migration name
+76,D-001,README.md,docs,Project overview,Done,,inamonanymous,Not Tested,,README.md,
+77,D-002,PROJECT_GUIDE.md,docs,Setup guide,Done,,inamonanymous,Not Tested,,PROJECT_GUIDE.md,
+78,D-003,DEVELOPMENT_ROADMAP.md,docs,Roadmap,Done,,inamonanymous,Not Tested,,DEVELOPMENT_ROADMAP.md,
+79,Phase 1,Phase 1,roadmap,MVP,Work in Progress,Yes,inamonanymous,Not Tested,,,
+80,Phase 2,Phase 2,roadmap,Debt + Savings,Not started,,inamonanymous,Not Tested,,,
+81,Phase 3,Phase 3,roadmap,Reporting,Not started,,inamonanymous,Not Tested,,,
+82,FUT-001,FUT-001,future,,Not started,,inamonanymous,Not Tested,,,
+83,FUT-002,FUT-002,future,,Not started,,inamonanymous,Not Tested,,,
+84,FUT-003,FUT-003,future,,Not started,,inamonanymous,Not Tested,,,

@@ -103,6 +103,9 @@ class CategoryRepositoryImpl(CategoryRepository):
         db.session.delete(orm)
         return True
 
+    def create(self, **kwargs) -> DomainCategory:
+        return DomainCategory(**kwargs)
+
     def get_all(self):
         orms = CategoryORM.query.all()
         return [

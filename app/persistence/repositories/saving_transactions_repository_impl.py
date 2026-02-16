@@ -39,6 +39,9 @@ class SavingTransactionsRepositoryImpl(SavingTransactionsRepository):
         db.session.delete(obj)
         return True
 
+    def create(self, **kwargs) -> SavingTransactionsORM:
+        return SavingTransactionsORM(**kwargs)
+
     def calculate_total_deposits_by_user(self, user_id: int) -> float:
         """Calculate total deposits (income) for a user's saving transactions."""
         from app.model.m_Income import Income

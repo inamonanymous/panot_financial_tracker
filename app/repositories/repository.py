@@ -60,6 +60,22 @@ class Repository(ABC, Generic[T]):
             RepositoryError: If update fails
         """
         pass
+
+    @abstractmethod
+    def create(self, entity: T) -> T:
+        """
+        Create a new entity.
+        
+        Args:
+            entity: Domain entity to persist
+        
+        Returns:
+            Created entity
+        
+        Raises:
+            RepositoryError: If creation fails
+        """
+        pass
     
     @abstractmethod
     def delete(self, entity_id: int) -> bool:

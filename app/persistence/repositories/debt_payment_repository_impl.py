@@ -33,3 +33,6 @@ class DebtPaymentsRepositoryImpl:
             return False
         db.session.delete(obj)
         return True
+
+    def create(self, **kwargs) -> DebtPayments:
+        return DebtPayments(**kwargs)

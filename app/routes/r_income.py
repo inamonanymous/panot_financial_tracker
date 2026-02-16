@@ -40,7 +40,7 @@ def income_page():
     all_income = use_case.execute(user.id)
     
     # ADD THIS: Get user's income categories for the modal dropdown
-    from app.use_cases.get_user_categories import GetUserCategoriesUseCase
+    from app.use_cases.category.get_user_categories import GetUserCategoriesUseCase
     cat_use_case = GetUserCategoriesUseCase(UOW)
     user_categories = cat_use_case.execute(user.id, category_type="income")
 
