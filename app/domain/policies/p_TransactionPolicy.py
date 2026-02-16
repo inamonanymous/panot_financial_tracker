@@ -11,8 +11,8 @@ class TransactionPolicy(BasePolicy):
             allowed=["user_id", "category_id", "source", "amount", "remarks", "payment_method", "received_date"]
         )
 
-        clean["user_id"] = self.validate_numeric_values(value=clean["user_id"], field_name="User ID", allow_zero=False)
-        clean["category_id"] = self.validate_numeric_values(value=clean["category_id"], field_name="Category ID", allow_zero=False)
+        clean["user_id"] = self.validate_id_values(value=clean["user_id"], field_name="User ID")
+        clean["category_id"] = self.validate_id_values(value=clean["category_id"], field_name="Category ID")
         clean["source"] = self.validate_string(clean["source"], "Source", min_len=0)
         clean["amount"] = self.validate_numeric_values(value=clean["amount"], field_name="Amount", allow_zero=False)
         clean["received_date"] = self.validate_date_value(value=clean["received_date"], field_name="Received Date", allow_future=False, allow_past=True)
@@ -54,8 +54,8 @@ class TransactionPolicy(BasePolicy):
             allowed=["user_id", "category_id", "payee", "amount", "expense_date", "payment_method", "remarks"],
         )
 
-        clean["user_id"] = self.validate_numeric_values(value=clean["user_id"], field_name="User ID", allow_zero=False)
-        clean["category_id"] = self.validate_numeric_values(value=clean["category_id"], field_name="Category ID", allow_zero=False)
+        clean["user_id"] = self.validate_id_values(value=clean["user_id"], field_name="User ID")
+        clean["category_id"] = self.validate_id_values(value=clean["category_id"], field_name="Category ID")
         clean["payee"] = self.validate_string(clean["payee"], "Payee", min_len=0)
         clean["amount"] = self.validate_numeric_values(value=clean["amount"], field_name="Amount", allow_zero=False)
         clean["expense_date"] = self.validate_date_value(clean["expense_date"], "Expense Date", allow_future=False, allow_past=True)

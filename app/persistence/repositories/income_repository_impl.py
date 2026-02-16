@@ -63,7 +63,7 @@ class IncomeRepositoryImpl(IncomeRepository):
                 amount=o.amount,
                 received_date=o.received_date,
                 payment_method=o.payment_method,
-                remarks=o.remarks,
+                remarks=o.remarks or "",
                 id=o.id,
             )
             for o in orms

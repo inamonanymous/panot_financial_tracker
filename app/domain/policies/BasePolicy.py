@@ -91,6 +91,13 @@ class BasePolicy(ABC):
 
         return amount
 
+    def validate_id_values(
+            self,
+            value,
+            field_name: str = "ID"
+    ) -> int:
+        return int(self.validate_numeric_values(value=value, field_name=field_name, allow_zero=False))
+
     def validate_date_value(
         self,
         value,

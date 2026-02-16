@@ -51,6 +51,7 @@ class Income:
     @staticmethod
     def _validate_user_id(user_id: int) -> int:
         if not isinstance(user_id, int) or user_id <= 0:
+            print(type(user_id))
             raise InvalidIncomeError("user_id must be a positive integer")
         return user_id
     
