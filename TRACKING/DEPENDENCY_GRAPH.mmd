@@ -1,0 +1,33 @@
+%% Dependency graph (Mermaid)
+%% Render with any Mermaid-compatible viewer (VS Code Mermaid preview, GitHub, etc.)
+
+flowchart LR
+  subgraph Routes
+    RU_users["routes/r_users.py"]
+    RU_expense["routes/r_expense.py"]
+    RU_income["routes/r_income.py"]
+  end
+
+  subgraph UseCases
+    UC_CheckLogin["CheckLoginUseCase"]
+    UC_CreateUser["CreateUserUseCase"]
+    UC_Dashboard["DashboardReportingUseCase"]
+    UC_CreateExpense["CreateExpenseUseCase"]
+    UC_GetExpense["GetUserExpenseUseCase"]
+    UC_CreateIncome["CreateIncomeUseCase"]
+  end
+
+  RU_users --> UC_CheckLogin
+  RU_users --> UC_CreateUser
+  RU_users --> UC_Dashboard
+  RU_expense --> UC_CreateExpense
+  RU_expense --> UC_GetExpense
+  RU_income --> UC_CreateIncome
+
+  UC_CheckLogin --> p_UserPolicy["p_UserPolicy"]
+  UC_CreateExpense --> p_TransactionPolicy["p_TransactionPolicy"]
+  UC_CreateExpense --> domain_Expense["domain.entities.expense"]
+  domain_Expense --> repo_expenses["repositories/expense_repository.py"]
+  repo_expenses --> m_Expenses["model/m_Expenses.py"]
+
+  %% add more links as needed

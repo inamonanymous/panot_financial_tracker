@@ -6,7 +6,6 @@ from app.domain.entities.expense import Expense
 from app.model.m_DebtPayments import DebtPayments as DebtPaymentsORM
 from datetime import datetime
 
-
 class CreateDebtPaymentUseCase:
     """Orchestrates creating a debt payment (category -> expense -> debt_payment)
 
