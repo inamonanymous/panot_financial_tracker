@@ -25,12 +25,14 @@ class CategoryPolicy(BasePolicy):
         if category is None:
             raise PolicyError("Category not found")
 
-        clean = self.update_resource(data, allowed=["name"])
+        clean = self.update_resource(
+            data, 
+            allowed=["name", "user_id", "category_id"]
+        )
 
-        if "name" not in clean:
-            raise PolicyError("Name should be present")
-        
-        clean["name"] = self.validate_string(clean["name"], "Category Name", min_len=3)
+        self.validate_id_values(clean["category_id"], "Category ID")
+        self.validate_id_values(clean["user_id"], "User ID")
+        self.validate_string(clean["name"], "Category Name", min_len=3)
 
         return clean
     
