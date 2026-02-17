@@ -1,6 +1,6 @@
 # Finance Project — Complete Project Guide
 
-**Last Updated:** February 2026  
+**Last Updated:** February 18, 2026  
 **Author:** Stephen Joaquin Aguilar  
 **Status:** Active Development
 
@@ -642,33 +642,41 @@ class SavingGoals(db.Model):
   - Registration with email & password
   - Password hashing (Werkzeug)
   - Login/logout with sessions
-  - User profile editing
+    - Session-protected routes and dashboard access
 
 - **Transaction Tracking**
-  - Add/edit/delete income
-  - Add/edit/delete expense
-  - Associated with user-specific categories
-  - Multiple payment methods
+    - Income create/list/edit
+    - Expense create/list/edit
+    - Validation requires separate fields:
+        - Income: `name` + `source`
+        - Expense: `name` + `payee`
+    - User-owned category checks before save/update
+    - Multiple payment methods
 
 - **Debt Management**
-  - Create debts with interest rates
-  - Automatic monthly payment calculation
-  - Due date tracking
   - Debt payment recording (creates expense)
 
-- **Savings Goals**
-  - Define goals with target amounts
-  - Track progress
-  - Record savings transactions
+- **Category Management**
+    - Category create/edit in both income and expense pages
+    - Category description support
+    - Shared category modal/card components reused across pages
 
 - **Dashboard**
-  - Financial summary (total income, expenses, savings)
-  - Debt overview
-  - Savings progress
+    - Financial summary (total income, expenses, savings deposits)
+    - Net value calculation
 
 ---
 
 ### ⏳ Planned
+
+- **Transaction Deletion Flows**
+    - Income/expense delete use cases + routes + UI confirm modals
+
+- **Debt CRUD Module**
+    - Debt create/list/edit/delete pages and use cases
+
+- **Savings Module**
+    - Savings goal and saving transaction routes/pages
 
 - **Analytics & Reports**
   - Monthly/yearly summaries
@@ -808,7 +816,7 @@ Follow this workflow:
 
 **Flow:**
 ```
-Route (/income) 
+Route (/insert_income) 
   → Use Case (validate, check state, persist)
     → Policy (validate_insert_income)
     → Repository (find category, save income)
@@ -819,22 +827,23 @@ Route (/income)
 
 ```python
 # app/routes/r_income.py
-@app.route('/income', methods=['POST'])
-def create_income():
+@income.route('/insert_income', methods=['POST'])
+def insert_income_route():
     try:
+        user = get_current_user()
         form_data = request.form.to_dict()
-        uow = UnitOfWork()
-        use_case = CreateIncomeUseCase(uow)
+        form_data["user_id"] = user.id
+        use_case = CreateIncomeUseCase(UOW)
         income = use_case.execute(form_data)
-        return redirect('/income')
-    except PolicyError as e:
-        return render_template('income.html', error=str(e)), 400
+        return redirect(url_for('income.income_page'))
+    except Exception as e:
+        return redirect(url_for('income.income_page', error_message=str(e)))
 ```
 
 **Use Case Code:**
 
 ```python
-# app/use_cases/create_income.py (hypothetical)
+# app/use_cases/income/create_income.py
 class CreateIncomeUseCase:
     def __init__(self, unit_of_work):
         self.uow = unit_of_work
@@ -854,6 +863,7 @@ class CreateIncomeUseCase:
             income = Income(
                 user_id=clean["user_id"],
                 category_id=clean["category_id"],
+                name=clean["name"],
                 source=clean["source"],
                 amount=clean["amount"],
                 received_date=clean["received_date"],

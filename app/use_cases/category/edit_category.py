@@ -13,6 +13,7 @@ class EditCategoryUseCase:
         self.cat_policy.validate_duplicate_category_name_entry(duplicate_category)
 
         category.rename(clean_data["name"])
+        category.update_description(clean_data.get("description"))
 
         with self.uow.transaction():
             updated_category = self.uow.categories.update(category)

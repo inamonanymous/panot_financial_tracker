@@ -24,6 +24,7 @@ class GetUserCategoriesUseCase:
             result.append({
                 "id": category.id,
                 "name": category.name,
+                "description": category.description,
                 "category_type": category.type
             })
         

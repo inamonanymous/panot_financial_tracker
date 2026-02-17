@@ -7,13 +7,14 @@ class TransactionPolicy(BasePolicy):
     def validate_insert_income(self, data: dict) -> dict:
         clean = self.create_resource(
             data,
-            required=["user_id", "category_id", "source", "amount", "payment_method", "received_date"],
-            allowed=["user_id", "category_id", "source", "amount", "remarks", "payment_method", "received_date"]
+            required=["user_id", "category_id", "name", "source", "amount", "payment_method", "received_date"],
+            allowed=["user_id", "category_id", "name", "source", "amount", "remarks", "payment_method", "received_date"]
         )
 
         clean["user_id"] = self.validate_id_values(value=clean["user_id"], field_name="User ID")
         clean["category_id"] = self.validate_id_values(value=clean["category_id"], field_name="Category ID")
-        clean["source"] = self.validate_string(clean["source"], "Source", min_len=0)
+        clean["name"] = self.validate_string(clean["name"], "Income Name", min_len=1)
+        clean["source"] = self.validate_string(clean["source"], "Income Source", min_len=1)
         clean["amount"] = self.validate_numeric_values(value=clean["amount"], field_name="Amount", allow_zero=False)
         clean["received_date"] = self.validate_date_value(value=clean["received_date"], field_name="Received Date", allow_future=False, allow_past=True)
         clean["payment_method"] = self.validate_payment_method(clean["payment_method"])
@@ -25,12 +26,18 @@ class TransactionPolicy(BasePolicy):
         if income is None:
             raise PolicyError("Income not found")
 
-        clean = self.create_resource(data, allowed=["category_id", "source", "payment_method","remarks"])
+        clean = self.update_resource(data, allowed=["category_id", "name", "source", "amount", "received_date", "payment_method", "remarks"])
 
         if "category_id" in clean:
             clean["category_id"] =  self.validate_id_values(clean["category_id"], "Category ID")
+        if "name" in clean:
+            clean["name"] = self.validate_string(clean["name"], "Income Name", min_len=1)
         if "source" in clean:
-            clean["source"] = self.validate_string(clean["source"], "Source", min_len=3)
+            clean["source"] = self.validate_string(clean["source"], "Income Source", min_len=1)
+        if "amount" in clean:
+            clean["amount"] = self.validate_numeric_values(clean["amount"], "Amount", allow_zero=False)
+        if "received_date" in clean:
+            clean["received_date"] = self.validate_date_value(clean["received_date"], "Received Date", allow_future=False, allow_past=True)
         if "payment_method" in clean:
             clean["payment_method"] = self.validate_payment_method(clean["payment_method"])
         if "remarks" in clean:
@@ -50,13 +57,14 @@ class TransactionPolicy(BasePolicy):
     def validate_insert_expense(self, data: dict) -> dict:
         clean = self.create_resource(
             data,
-            required=["user_id", "category_id", "payee", "amount", "expense_date", "payment_method"],
-            allowed=["user_id", "category_id", "payee", "amount", "expense_date", "payment_method", "remarks"],
+            required=["user_id", "category_id", "name", "payee", "amount", "expense_date", "payment_method"],
+            allowed=["user_id", "category_id", "name", "payee", "amount", "expense_date", "payment_method", "remarks"],
         )
 
         clean["user_id"] = self.validate_id_values(value=clean["user_id"], field_name="User ID")
         clean["category_id"] = self.validate_id_values(value=clean["category_id"], field_name="Category ID")
-        clean["payee"] = self.validate_string(clean["payee"], "Payee", min_len=0)
+        clean["name"] = self.validate_string(clean["name"], "Expense Name", min_len=1)
+        clean["payee"] = self.validate_string(clean["payee"], "Expense Payee", min_len=1)
         clean["amount"] = self.validate_numeric_values(value=clean["amount"], field_name="Amount", allow_zero=False)
         clean["expense_date"] = self.validate_date_value(clean["expense_date"], "Expense Date", allow_future=False, allow_past=True)
         clean["payment_method"] = self.validate_payment_method(clean["payment_method"])
@@ -68,12 +76,16 @@ class TransactionPolicy(BasePolicy):
         if expense is None:
             raise PolicyError("Expense not found")
 
-        clean = self.create_resource(data, allowed=["category_id", "payee", "payment_method", "expense_date", "remarks"])
+        clean = self.update_resource(data, allowed=["category_id", "name", "payee", "amount", "payment_method", "expense_date", "remarks"])
 
         if "category_id" in clean:
             clean["category_id"] =  self.validate_id_values(clean["category_id"], "Category ID")
+        if "name" in clean:
+            clean["name"] = self.validate_string(clean["name"], "Expense Name", min_len=1)
         if "payee" in clean:
-            clean["payee"] = self.validate_string(clean["payee"], "Payee", min_len=3)
+            clean["payee"] = self.validate_string(clean["payee"], "Expense Payee", min_len=1)
+        if "amount" in clean:
+            clean["amount"] = self.validate_numeric_values(clean["amount"], "Amount", allow_zero=False)
         if "payment_method" in clean:
             clean["payment_method"] = self.validate_payment_method(clean["payment_method"])
         if "expense_date" in clean:

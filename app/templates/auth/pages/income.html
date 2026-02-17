@@ -16,6 +16,7 @@
         <div class="container-fluid">
             <!-- Modal -->
             {% include 'auth/modals/add_income.html' %}
+            {% include 'auth/modals/edit_income.html' %}
             {% include 'auth/modals/add_category.html' %}
             {% include 'auth/modals/edit_category.html' %}
             
@@ -52,14 +53,16 @@
                 const editButtons = document.querySelectorAll(".js-edit-category-btn");
                 const form = document.getElementById("editCategoryForm");
                 const nameInput = document.getElementById("editCategoryName");
+                const descriptionInput = document.getElementById("editCategoryDescription");
                 const submitButton = document.getElementById("editCategorySubmit");
 
-                if (!form || !nameInput || !submitButton) {
+                if (!form || !nameInput || !descriptionInput || !submitButton) {
                     return;
                 }
 
                 const setLoadingState = function (isLoading) {
                     nameInput.disabled = isLoading;
+                    descriptionInput.disabled = isLoading;
                     submitButton.disabled = isLoading;
                 };
 
@@ -76,6 +79,7 @@
 
                         form.action = updateUrl;
                         nameInput.value = "";
+                        descriptionInput.value = "";
                         setLoadingState(true);
 
                         fetch(apiUrl, {
@@ -92,10 +96,91 @@
                             })
                             .then(function (data) {
                                 nameInput.value = data.name || "";
+                                descriptionInput.value = data.description || "";
                             })
                             .catch(function () {
                                 nameInput.value = "";
+                                descriptionInput.value = "";
                                 alert("Unable to load category details. Please try again.");
+                            })
+                            .finally(function () {
+                                setLoadingState(false);
+                            });
+                    });
+                });
+            });
+
+            document.addEventListener("DOMContentLoaded", function () {
+                const editButtons = document.querySelectorAll(".js-edit-income-btn");
+                const form = document.getElementById("editIncomeForm");
+                const categoryInput = document.getElementById("edit_income_category_id");
+                const nameInput = document.getElementById("edit_income_name");
+                const sourceInput = document.getElementById("edit_income_source");
+                const amountInput = document.getElementById("edit_income_amount");
+                const dateInput = document.getElementById("edit_income_received_date");
+                const methodInput = document.getElementById("edit_income_method");
+                const remarksInput = document.getElementById("edit_income_remarks");
+                const submitButton = document.getElementById("editIncomeSubmit");
+
+                if (!form || !categoryInput || !nameInput || !sourceInput || !amountInput || !dateInput || !methodInput || !remarksInput || !submitButton) {
+                    return;
+                }
+
+                const setLoadingState = function (isLoading) {
+                    categoryInput.disabled = isLoading;
+                    nameInput.disabled = isLoading;
+                    sourceInput.disabled = isLoading;
+                    amountInput.disabled = isLoading;
+                    dateInput.disabled = isLoading;
+                    methodInput.disabled = isLoading;
+                    remarksInput.disabled = isLoading;
+                    submitButton.disabled = isLoading;
+                };
+
+                editButtons.forEach(function (button) {
+                    button.addEventListener("click", function (event) {
+                        event.preventDefault();
+
+                        const apiUrl = button.dataset.incomeApiUrl;
+                        const updateUrl = button.dataset.incomeUpdateUrl;
+
+                        if (!apiUrl || !updateUrl) {
+                            return;
+                        }
+
+                        form.action = updateUrl;
+                        categoryInput.value = "";
+                        nameInput.value = "";
+                        sourceInput.value = "";
+                        amountInput.value = "";
+                        dateInput.value = "";
+                        methodInput.value = "cash";
+                        remarksInput.value = "";
+                        setLoadingState(true);
+
+                        fetch(apiUrl, {
+                            method: "GET",
+                            headers: {
+                                "Accept": "application/json"
+                            }
+                        })
+                            .then(function (response) {
+                                if (!response.ok) {
+                                    throw new Error("Failed to fetch income");
+                                }
+                                return response.json();
+                            })
+                            .then(function (data) {
+                                categoryInput.value = data.category_id || "";
+                                nameInput.value = data.name || "";
+                                sourceInput.value = data.source || "";
+                                amountInput.value = data.amount || "";
+                                dateInput.value = data.received_date || "";
+                                methodInput.value = data.payment_method || "cash";
+                                remarksInput.value = data.remarks || "";
+                            })
+                            .catch(function () {
+                                alert("Unable to load income details. Please try again.");
                             })
                             .finally(function () {
                                 setLoadingState(false);

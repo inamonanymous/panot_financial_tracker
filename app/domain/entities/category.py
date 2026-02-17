@@ -12,7 +12,15 @@ class Category:
     
     VALID_TYPES = {"income", "expense"}
     
-    def __init__(self, user_id: int, type: str, name: str, id: int = None, created_at: datetime = None):
+    def __init__(
+        self,
+        user_id: int,
+        type: str,
+        name: str,
+        description: str | None = None,
+        id: int = None,
+        created_at: datetime = None,
+    ):
         """
         Initialize a Category entity.
         
@@ -20,6 +28,7 @@ class Category:
             user_id: Owner of the category
             type: "income" or "expense"
             name: Category name (e.g., "Salary", "Groceries")
+            description: Optional category description
             id: Category ID (optional, assigned by database)
             created_at: Creation timestamp (optional)
         
@@ -30,6 +39,7 @@ class Category:
         self.user_id = self._validate_user_id(user_id)
         self.type = self._validate_type(type)
         self.name = self._validate_name(name)
+        self.description = self._validate_description(description)
         self.created_at = created_at or datetime.utcnow()
     
     @staticmethod
@@ -72,10 +82,31 @@ class Category:
             raise InvalidCategoryError("name must be at least 3 characters")
         
         return name
+
+    @staticmethod
+    def _validate_description(description: str | None) -> str | None:
+        if description is None:
+            return None
+
+        if not isinstance(description, str):
+            raise InvalidCategoryError("description must be a string")
+
+        description = description.strip()
+        if not description:
+            return None
+
+        if len(description) > 255:
+            raise InvalidCategoryError("description must be 255 characters or less")
+
+        return description
     
     def rename(self, new_name: str) -> None:
         """Update category name with validation"""
         self.name = self._validate_name(new_name)
+
+    def update_description(self, new_description: str | None) -> None:
+        """Update category description with validation"""
+        self.description = self._validate_description(new_description)
     
     def __repr__(self) -> str:
         return f"Category(id={self.id}, type={self.type}, name={self.name})"

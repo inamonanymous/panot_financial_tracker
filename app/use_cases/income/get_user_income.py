@@ -16,6 +16,7 @@ class GetUserIncomeUseCase:
             orm = IncomeORM.query.filter_by(id=income.id).first()
             result.append({
                 "id": income.id,
+                "name": (orm.name if orm and orm.name else ""),
                 "source": income.source,
                 "amount": income.amount,
                 "category_name": category.name if category else "Unknown",

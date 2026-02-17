@@ -12,6 +12,7 @@ class IncomeRepositoryImpl(IncomeRepository):
         orm = IncomeORM(
             user_id=entity.user_id,
             category_id=entity.category_id,
+            name=entity.name,
             source=entity.source,
             amount=entity.amount,
             received_date=entity.received_date,
@@ -30,6 +31,7 @@ class IncomeRepositoryImpl(IncomeRepository):
         return DomainIncome(
             user_id=orm.user_id,
             category_id=orm.category_id,
+            name=orm.name or orm.source,
             source=orm.source,
             amount=orm.amount,
             received_date=orm.received_date,
@@ -45,6 +47,7 @@ class IncomeRepositoryImpl(IncomeRepository):
         return DomainIncome(
             user_id=orm.user_id,
             category_id=orm.category_id,
+            name=orm.name or orm.source,
             source=orm.source,
             amount=orm.amount,
             received_date=orm.received_date,
@@ -59,6 +62,7 @@ class IncomeRepositoryImpl(IncomeRepository):
             DomainIncome(
                 user_id=o.user_id,
                 category_id=o.category_id,
+                name=o.name or o.source,
                 source=o.source,
                 amount=o.amount,
                 received_date=o.received_date,
@@ -84,6 +88,7 @@ class IncomeRepositoryImpl(IncomeRepository):
             DomainIncome(
                 user_id=o.user_id,
                 category_id=o.category_id,
+                name=o.name or o.source,
                 source=o.source,
                 amount=o.amount,
                 received_date=o.received_date,
@@ -98,6 +103,7 @@ class IncomeRepositoryImpl(IncomeRepository):
         orm = IncomeORM.query.filter_by(id=entity.id).first()
         if orm is None:
             raise EntityNotFoundError('Income not found')
+        orm.name = entity.name
         orm.source = entity.source
         orm.amount = entity.amount
         orm.payment_method = entity.payment_method
@@ -123,6 +129,7 @@ class IncomeRepositoryImpl(IncomeRepository):
             DomainIncome(
                 user_id=o.user_id,
                 category_id=o.category_id,
+                name=o.name or o.source,
                 source=o.source,
                 amount=o.amount,
                 received_date=o.received_date,

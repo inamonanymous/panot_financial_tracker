@@ -3,17 +3,35 @@ from app.utils.exceptions.PolicyError import PolicyError
 import re
 
 class CategoryPolicy(BasePolicy):
+    @staticmethod
+    def _clean_description(description):
+        if description is None:
+            return None
+
+        if not isinstance(description, str):
+            raise PolicyError("Category Description must be a string")
+
+        description = description.strip()
+        if description == "":
+            return None
+
+        if len(description) > 255:
+            raise PolicyError("Category Description must be 255 characters or less")
+
+        return description
+
     def validate_insert_category(self, data: dict) -> dict:
         filtered_category_data = self.create_resource(
             data,
             required=["user_id", "type", "name"],
-            allowed=["user_id", "type", "name"]
+            allowed=["user_id", "type", "name", "description"]
         )
 
         if filtered_category_data["type"].lower() not in ("income", "expense"):
             raise PolicyError("Type should be income or expense only")
         
         filtered_category_data["name"] = self.validate_string(filtered_category_data["name"], "Category Name", min_len=3)
+        filtered_category_data["description"] = self._clean_description(filtered_category_data.get("description"))
         
         return filtered_category_data
 
@@ -27,12 +45,13 @@ class CategoryPolicy(BasePolicy):
 
         clean = self.update_resource(
             data, 
-            allowed=["name", "user_id", "category_id"]
+            allowed=["name", "description", "user_id", "category_id"]
         )
 
         self.validate_id_values(clean["category_id"], "Category ID")
         self.validate_id_values(clean["user_id"], "User ID")
-        self.validate_string(clean["name"], "Category Name", min_len=3)
+        clean["name"] = self.validate_string(clean["name"], "Category Name", min_len=3)
+        clean["description"] = self._clean_description(clean.get("description"))
 
         return clean
     

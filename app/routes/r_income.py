@@ -7,6 +7,7 @@ from app.utils.exceptions.ServiceError import ServiceError
 from app.routes.functions import require_user_session, get_current_user
 from app.use_cases.income.get_user_income import GetUserIncomeUseCase
 from app.use_cases.income.create_income import CreateIncomeUseCase
+from app.use_cases.income.edit_income import EditIncomeUseCase
 from app.service import UOW
 
 income = Blueprint(
@@ -60,6 +61,7 @@ def get_income_category_api(category_id: int):
     return jsonify({
         "id": category.id,
         "name": category.name,
+        "description": category.description,
         "type": category.type
     }), 200
 
@@ -77,6 +79,41 @@ def insert_income_route():
 
 
         return redirect(url_for('income.income_page'))  
+    except Exception as e:
+        return redirect(url_for('income.income_page', error_message=str(e)))
+
+
+@require_user_session
+@income.route('/api/income/<int:income_id>', methods=['GET'])
+def get_income_api(income_id: int):
+    user = get_current_user()
+    income_record = UOW.incomes.get_by_id_and_user_id(income_id, user.id)
+
+    if income_record is None:
+        return jsonify({"error": "Income not found"}), 404
+
+    return jsonify({
+        "id": income_record.id,
+        "category_id": income_record.category_id,
+        "name": income_record.name,
+        "source": income_record.source,
+        "amount": income_record.amount,
+        "received_date": income_record.received_date.isoformat() if income_record.received_date else None,
+        "payment_method": income_record.payment_method,
+        "remarks": income_record.remarks,
+    }), 200
+
+
+@require_user_session
+@income.route('/update_income/<int:income_id>', methods=['POST'])
+def update_income_route(income_id: int):
+    user = get_current_user()
+    form_data = request.form.to_dict()
+
+    try:
+        use_case = EditIncomeUseCase(UOW)
+        use_case.execute(income_id, user.id, form_data)
+        return redirect(url_for('income.income_page'))
     except Exception as e:
         return redirect(url_for('income.income_page', error_message=str(e)))
     

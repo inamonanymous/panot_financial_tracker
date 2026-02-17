@@ -16,9 +16,10 @@ class Income:
         self,
         user_id: int,
         category_id: int,
-        source: str,
         amount: float,
         received_date: date,
+        name: str,
+        source: str,
         payment_method: str = "cash",
         remarks: str = "",
         id: int = None
@@ -29,7 +30,8 @@ class Income:
         Args:
             user_id: Owner of the income
             category_id: Income category
-            source: Source of income (e.g., "Salary", "Freelance")
+            name: Income name/title (e.g., "January Salary")
+            source: Income source (e.g., Employer, Client, Business)
             amount: Amount received
             received_date: When income was received
             payment_method: How it was received
@@ -42,7 +44,10 @@ class Income:
         self.id = id
         self.user_id = self._validate_user_id(user_id)
         self.category_id = self._validate_category_id(category_id)
-        self.source = self._validate_source(source)
+        resolved_name = name if name is not None else source
+        resolved_source = source if source is not None else name
+        self.name = self._validate_name(resolved_name)
+        self.source = self._validate_source(resolved_source)
         self.amount = self._validate_amount(amount)
         self.received_date = self._validate_received_date(received_date)
         self.payment_method = self._validate_payment_method(payment_method)
@@ -62,15 +67,27 @@ class Income:
         return category_id
     
     @staticmethod
+    def _validate_name(name: str) -> str:
+        if not isinstance(name, str):
+            raise InvalidIncomeError("name must be a string")
+        
+        name = name.strip()
+        
+        if len(name) < 1:
+            raise InvalidIncomeError("name cannot be empty")
+        
+        return name
+
+    @staticmethod
     def _validate_source(source: str) -> str:
         if not isinstance(source, str):
             raise InvalidIncomeError("source must be a string")
-        
+
         source = source.strip()
-        
+
         if len(source) < 1:
             raise InvalidIncomeError("source cannot be empty")
-        
+
         return source
     
     @staticmethod
@@ -111,12 +128,16 @@ class Income:
     
     def update(
         self,
+        name: str = None,
         source: str = None,
         amount: float = None,
         payment_method: str = None,
         remarks: str = None
     ) -> None:
         """Update income details with validation"""
+        if name is not None:
+            self.name = self._validate_name(name)
+
         if source is not None:
             self.source = self._validate_source(source)
         
@@ -131,7 +152,7 @@ class Income:
     
     def __repr__(self) -> str:
         return (
-            f"Income(id={self.id}, source={self.source}, amount={self.amount}, "
+            f"Income(id={self.id}, name={self.name}, amount={self.amount}, "
             f"received_date={self.received_date})"
         )
     

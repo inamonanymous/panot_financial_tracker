@@ -1,269 +1,190 @@
 # Finance Project — Personal Finance Tracker
 
-A Flask-based web application for tracking income, expenses, debts, and savings goals. Built with a clean layered architecture separating validation, business rules, orchestration, and persistence.
+Flask web app for tracking personal finances with a layered architecture (Routes → Use Cases → Policies/Domain Services → Repositories → SQLAlchemy models).
+
+**Status (February 18, 2026):** Active development. Core auth, dashboard, income, expense, debt payment, and category management are implemented with create + edit flows.
+
+## What Works Right Now
+
+- User registration and login/logout
+- Session-protected dashboard
+- Income list + create + edit income
+- Expense list + create + edit expense
+- Category create/edit APIs for both income and expense pages
+- Shared category modal/card UI reused across pages
+- Debt payment flow that records both an expense and a debt payment entry
+- Server-side sessions and MySQL persistence
+
+## In Progress / Not Fully Wired
+
+- Standalone category blueprint (`app/routes/r_category.py`) exists but is not registered in app factory yet
+- Savings goals pages/routes are not exposed yet
+- Reports and analytics pages are still planned
+- Automated tests are not set up yet
+
+## Recent Changelog
+
+### 2026-02-18
+- Added category description support end-to-end (model, policy, repository, UI)
+- Added income and expense name support, while keeping source/payee fields
+- Added income and expense edit flows (routes, APIs, use-cases, edit modals)
+- Unified category UI by reusing shared category modal/card components across income and expense pages
+- Updated project documentation (README, project guide, roadmap) to reflect current state
+
+---
 
 ## Quick Start
 
+From project root:
+
 ```powershell
+python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
 python run.py
 ```
 
-Visit `http://127.0.0.1:5000` and register or log in.
+Open: `http://127.0.0.1:5000`
+
+> Note: run command is `python run.py` (no trailing slash).
 
 ---
 
-## Architecture Overview
+## Environment Variables
 
-This project uses **Clean Architecture** with these key layers:
+Create a `.env` file in project root with:
+
+```env
+DATABASE_URI=mysql+mysqldb://<user>:<password>@<host>/<database>
+SECRET_KEY=your_secret_key
+SESSION_TYPE=sqlalchemy
+SESSION_PERMANENT=false
+SESSION_USE_SIGNER=true
+PERMANENT_SESSION_LIFETIME=3600
+```
+
+The app reads these in `app/config.py`.
+
+---
+
+## Current Route Map
+
+### Users (`app/routes/r_users.py`)
+- `GET /` → redirect to login
+- `GET|POST /login`
+- `GET|POST /registration`
+- `GET /dashboard` (requires session)
+- `POST /debt_payment` (requires session)
+- `GET /logout`
+
+### Income (`app/routes/r_income.py`)
+- `GET /income` (requires session)
+- `POST /insert_income` (requires session)
+- `GET /api/income/<income_id>` (requires session)
+- `POST /update_income/<income_id>` (requires session)
+- `POST /insert_income_category` (requires session)
+- `POST /update_income_category/<category_id>` (requires session)
+- `GET /api/income/categories/<category_id>` (requires session)
+
+### Expense (`app/routes/r_expense.py`)
+- `GET /expense` (requires session)
+- `POST /insert_expense` (requires session)
+- `GET /api/expense/<expense_id>` (requires session)
+- `POST /update_expense/<expense_id>` (requires session)
+- `POST /insert_expense_category` (requires session)
+- `POST /update_expense_category/<category_id>` (requires session)
+- `GET /api/expense/categories/<category_id>` (requires session)
+
+---
+
+## How the App Works (Request Flow)
+
+Typical write flow (example: insert income):
+
+1. Route collects form data and injects current `user_id`
+2. Use case validates input using `TransactionPolicy`
+3. Use case verifies ownership/state with repositories (e.g., category belongs to user)
+4. Use case creates entity/ORM via repository
+5. Persistence happens inside `UnitOfWork.transaction()`
+6. Route redirects to page on success, or with `error_message` on failure
+
+This keeps responsibilities separated:
+
+- **Routes**: HTTP and redirects/templates
+- **Policies**: input validation and guard rules
+- **Use cases**: orchestration/business flow
+- **Domain services**: pure calculations (net worth, debt math, savings analysis)
+- **Repositories + UoW**: data access and transaction safety
+
+---
+
+## Architecture Snapshot
 
 ```
 HTTP Request
     ↓
-Routes (app/routes)
+Blueprint Routes (app/routes)
     ↓
-Use Cases (app/use_cases) — orchestration & business flows
+Use Cases (app/use_cases)
     ↓
-Policies (app/domain/policies) — input validation
-Domain Services (app/domain/services) — pure business logic & calculations
+Policies (app/domain/policies) + Domain Services (app/domain/services)
     ↓
-Repositories (app/repositories) + UnitOfWork (app/persistence/unit_of_work.py)
+Repository Interfaces (app/repositories)
     ↓
-Database (SQLAlchemy ORM models in app/model)
+Repository Implementations (app/persistence/repositories)
+    ↓
+SQLAlchemy Models (app/model) + MySQL
 ```
 
-### Core Concepts
-
-- **Policies** (`app/domain/policies`): Input validation only. No DB access. No business calculations. Just type/format/constraint checks.
-- **Domain Services** (`app/domain/services`): Pure, stateless business functions (debt math, financial ratios, net worth). Unit-testable.
-- **Use Cases** (`app/use_cases`): Orchestrate request flows. Validate input → run DB/state checks → call domain services → persist via repositories inside a transaction.
-- **Repositories** (`app/repositories`): Data access. Abstraction over SQLAlchemy ORM models.
-- **UnitOfWork** (`app/persistence/unit_of_work.py`): Transaction manager. Exposes repositories and commit/rollback semantics.
+`app/service/__init__.py` exposes a pre-wired shared `UOW` instance created by `app.persistence.create_unit_of_work()`.
 
 ---
 
-## Directory Structure
+## Key Files
 
-```
-app/
-├── domain/
-│   ├── entities/          # Plain constructors (Category, Expense, Income, Debt, etc.)
-│   ├── policies/          # Input validation (BasePolicy + specific policies)
-│   └── services/          # Business rules (FinancialCalculator, DebtCalculator, etc.)
-├── use_cases/             # Application orchestration (CreateUserUseCase, CreateDebtPaymentUseCase, etc.)
-├── routes/                # Flask HTTP endpoints (r_users.py, r_income.py, etc.)
-├── repositories/          # Data access layer (user_repository.py, expense_repository.py, etc.)
-├── persistence/           # UnitOfWork and transaction handling
-├── model/                 # SQLAlchemy ORM models (m_Users.py, m_Debts.py, etc.)
-├── validators/            # Low-level format validators (date_validator, email_validator, etc.)
-├── utils/                 # Utilities and exceptions
-├── templates/             # Jinja2 templates
-├── static/                # CSS, JS, images
-├── ext.py                 # Flask extensions (db, etc.)
-├── config.py              # Configuration
-└── __init__.py            # App factory (create_app)
-```
+- `run.py` — app entry point
+- `app/__init__.py` — app factory, extension setup, blueprint registration
+- `app/config.py` — environment-based configuration
+- `app/persistence/unit_of_work.py` — transaction manager
+- `app/use_cases/` — app-level workflows (auth, income, expense, dashboard, debt payment)
+- `app/domain/policies/` — validation policies
+- `app/domain/services/` — pure finance calculators/analyzers
 
 ---
 
-## Data Flow (Request → Response)
+## Implemented Templates
 
-### Example: Creating an Income Record
-
-1. **Route** (`app/routes/r_income.py`) receives HTTP POST `/income` with JSON data.
-2. **Route** calls the use-case: `CreateIncomeUseCase.execute(income_data)`.
-3. **Use Case** calls `TransactionPolicy.validate_insert_income(income_data)`.
-4. **Policy** validates input only (required fields, types, formats, ranges). Returns cleaned data or raises `PolicyError`.
-5. **Use Case** performs DB/state checks using repositories:
-   - Does the category exist?
-   - Does the user own this category?
-6. **Use Case** calls domain service for any calculations (if needed).
-7. **Use Case** persists using `UnitOfWork`:
-   ```python
-   with uow.transaction():
-       saved_income = uow.incomes.save(income_entity)
-   ```
-8. **Route** returns the response (JSON or redirect).
+- `app/templates/public/login.html`
+- `app/templates/public/register.html`
+- `app/templates/auth/pages/dashboard.html`
+- `app/templates/auth/pages/income.html`
+- `app/templates/auth/pages/expense.html`
+- Shared category templates:
+    - `app/templates/auth/modals/add_category.html`
+    - `app/templates/auth/modals/edit_category.html`
+    - `app/templates/auth/cards/categories_card.html`
+- Transaction edit templates:
+    - `app/templates/auth/modals/edit_income.html`
+    - `app/templates/auth/modals/edit_expense.html`
 
 ---
 
-## Where to Add New Code
+## Database & Migrations
 
-### Pure Business Logic (Calculations, Analysis)
-→ Add functions to `app/domain/services/*.py`
-
-**Example:**
-```python
-# app/domain/services/my_calculator.py
-class MyCalculator:
-    @staticmethod
-    def calculate_something(value: float) -> float:
-        return value * 0.1  # Pure math, no DB access
-```
-
-### Input Validation
-→ Add methods to `app/domain/policies/*.py` (inherit from `BasePolicy`)
-
-**Example:**
-```python
-# app/domain/policies/p_MyPolicy.py
-class MyPolicy(BasePolicy):
-    def validate_my_input(self, data: dict) -> dict:
-        clean = self.create_resource(
-            data,
-            required=["field1", "field2"],
-            allowed=["field1", "field2", "field3"]
-        )
-        clean["field1"] = self.validate_string(clean["field1"], "Field 1", min_len=3)
-        return clean
-```
-
-### Business Flows & Orchestration
-→ Add use-cases to `app/use_cases/*.py`
-
-**Example:**
-```python
-# app/use_cases/create_my_thing.py
-from app.domain.policies.p_MyPolicy import MyPolicy
-from app.domain.services.my_calculator import MyCalculator
-
-class CreateMyThingUseCase:
-    def __init__(self, unit_of_work):
-        self.uow = unit_of_work
-        self.policy = MyPolicy()
-    
-    def execute(self, data: dict):
-        clean_data = self.policy.validate_my_input(data)
-        
-        # Perform state checks
-        existing = self.uow.my_repo.find_by_name(clean_data["field1"])
-        if existing:
-            raise Exception("Already exists")
-        
-        # Call domain service
-        computed = MyCalculator.calculate_something(clean_data["amount"])
-        
-        # Persist
-        with self.uow.transaction():
-            my_entity = MyEntity(**clean_data)
-            saved = self.uow.my_repo.save(my_entity)
-        
-        return saved
-```
-
-### Data Access (DB Queries)
-→ Add methods to `app/repositories/*.py`
-
-**Example:**
-```python
-# app/repositories/my_repository.py
-class MyRepository(Repository):
-    def find_by_name(self, name: str):
-        return self.session.query(MyORM).filter_by(name=name).first()
-```
-
-### HTTP Endpoints
-→ Add routes to `app/routes/*.py`
-
-**Example:**
-```python
-# app/routes/r_my_route.py
-from flask import request, jsonify
-from app.use_cases.create_my_thing import CreateMyThingUseCase
-from app.persistence.unit_of_work import UnitOfWork
-
-@app.route('/my-endpoint', methods=['POST'])
-def my_endpoint():
-    uow = UnitOfWork()
-    use_case = CreateMyThingUseCase(uow)
-    try:
-        result = use_case.execute(request.json)
-        return jsonify({"success": True, "data": result}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-```
-
----
-
-## Key Patterns
-
-### BasePolicy
-All policies inherit from `BasePolicy` which provides:
-- `create_resource(data, required=[], allowed=[])` — validates required fields, normalizes strings, filters allowed fields
-- `update_resource(data, allowed=[])` — for edit operations
-- `validate_string(value, field, min_len)` — string validation
-- `validate_numeric_values(value, field, allow_zero=False)` — money-safe number validation
-- `validate_date_value(value, field, allow_future, allow_past)` — date validation
-- `validate_email_string(email)` — email validation
-- `validate_password_string(password, confirm, min_len)` — password validation
-
-### UnitOfWork Pattern
-```python
-from app.persistence.unit_of_work import UnitOfWork
-
-uow = UnitOfWork()
-with uow.transaction():
-    user = uow.users.save(user_entity)
-    income = uow.incomes.save(income_entity)
-    # If all succeeds → commits
-    # If any fails → rolls back
-```
-
-### Error Handling
-- **PolicyError**: raised by policies when input validation fails
-- **Exception**: raised by use-cases for business logic violations
-- Routes catch and translate into HTTP responses
-
----
-
-## Features
-
-- ✅ User registration & authentication (email, password hashing)
-- ✅ Income tracking (add, edit, delete)
-- ✅ Expense tracking with categories
-- ✅ Debt management with due dates
-- ✅ Savings goals
-- ✅ Dashboard with summaries
-- ⏳ Reports (planned)
-- ⏳ Charts & analytics (planned)
-
----
-
-## Database
-
-- **Engine**: MySQL
-- **ORM**: SQLAlchemy (Flask-SQLAlchemy)
-- **Migrations**: Alembic (in `migrations/` folder)
-
-All financial values (totals, ratios) are **computed on-demand** using SQL aggregations. No cached monetary fields.
+- ORM: Flask-SQLAlchemy / SQLAlchemy
+- Migrations: Alembic in `migrations/`
+- App currently also calls `db.create_all()` during startup (`generate_tables`) to ensure missing tables are created
 
 ---
 
 ## Development Notes
 
-### Running Tests
-Not yet set up. Unit tests should test domain services independently; integration tests should test use-cases with mocked UnitOfWork.
+- No formal test suite yet
+- If you add a new feature, follow this pattern:
+  1. Add/extend policy validation
+  2. Implement use case
+  3. Add repository method (if needed)
+  4. Add route/template
+  5. Keep DB writes inside `uow.transaction()`
 
-### Adding a New Feature
-1. Define the domain entity (if new) in `app/domain/entities/`
-2. Add validation rules to `app/domain/policies/`
-3. Add business logic to `app/domain/services/`
-4. Create a use-case in `app/use_cases/`
-5. Add a repository method in `app/repositories/`
-6. Add a route in `app/routes/`
-7. Create a template if needed
-
-### Code Style
-- Use type hints where possible
-- Keep policies stateless and side-effect-free
-- Keep domain services pure (no I/O, no mutations)
-- Use UnitOfWork for all DB transactions
-
----
-
-## Contact & License
-
-- **Author**: Stephen Joaquin Aguilar
-- **Project**: Finance Tracker 2025-2026
-- **License**: Educational/Personal Use
+For detailed design and roadmap, see `PROJECT_GUIDE.md` and `DEVELOPMENT_ROADMAP.md`.

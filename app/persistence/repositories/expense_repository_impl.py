@@ -12,6 +12,7 @@ class ExpenseRepositoryImpl(ExpenseRepository):
         orm = ExpenseORM(
             user_id=entity.user_id,
             category_id=entity.category_id,
+            name=entity.name,
             payee=entity.payee,
             amount=entity.amount,
             expense_date=entity.expense_date,
@@ -30,6 +31,7 @@ class ExpenseRepositoryImpl(ExpenseRepository):
         return DomainExpense(
             user_id=orm.user_id,
             category_id=orm.category_id,
+            name=orm.name or orm.payee,
             payee=orm.payee,
             amount=orm.amount,
             expense_date=orm.expense_date,
@@ -45,6 +47,7 @@ class ExpenseRepositoryImpl(ExpenseRepository):
         return DomainExpense(
             user_id=orm.user_id,
             category_id=orm.category_id,
+            name=orm.name or orm.payee,
             payee=orm.payee,
             amount=orm.amount,
             expense_date=orm.expense_date,
@@ -59,6 +62,7 @@ class ExpenseRepositoryImpl(ExpenseRepository):
             DomainExpense(
                 user_id=o.user_id,
                 category_id=o.category_id,
+                name=o.name or o.payee,
                 payee=o.payee,
                 amount=o.amount,
                 expense_date=o.expense_date,
@@ -84,6 +88,7 @@ class ExpenseRepositoryImpl(ExpenseRepository):
             DomainExpense(
                 user_id=o.user_id,
                 category_id=o.category_id,
+                name=o.name or o.payee,
                 payee=o.payee,
                 amount=o.amount,
                 expense_date=o.expense_date,
@@ -98,6 +103,7 @@ class ExpenseRepositoryImpl(ExpenseRepository):
         orm = ExpenseORM.query.filter_by(id=entity.id).first()
         if orm is None:
             raise EntityNotFoundError('Expense not found')
+        orm.name = entity.name
         orm.payee = entity.payee
         orm.amount = entity.amount
         orm.payment_method = entity.payment_method
@@ -123,6 +129,7 @@ class ExpenseRepositoryImpl(ExpenseRepository):
             DomainExpense(
                 user_id=o.user_id,
                 category_id=o.category_id,
+                name=o.name or o.payee,
                 payee=o.payee,
                 amount=o.amount,
                 expense_date=o.expense_date,

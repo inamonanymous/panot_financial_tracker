@@ -40,7 +40,8 @@ class CreateDebtPaymentUseCase:
             else:
                 expense_data["category_id"] = category.id
 
-            expense_data["payee"] = debt.lender
+                expense_data["name"] = f"Debt payment - {debt.lender}"
+                expense_data["payee"] = expense_data["name"]
 
             cleaned_expense = self.tx_policy.validate_insert_expense(expense_data)
 
@@ -48,6 +49,7 @@ class CreateDebtPaymentUseCase:
             exp_entity = Expense(
                 user_id=cleaned_expense["user_id"],
                 category_id=cleaned_expense["category_id"],
+                name=cleaned_expense["name"],
                 payee=cleaned_expense["payee"],
                 amount=cleaned_expense["amount"],
                 expense_date=cleaned_expense["expense_date"],

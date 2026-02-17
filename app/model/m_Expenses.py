@@ -5,6 +5,7 @@ class Expenses(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id', ondelete="CASCADE"), nullable=False)
+    name = db.Column(db.String(80), nullable=False)
     payee = db.Column(db.String(32), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     expense_date = db.Column(db.DateTime, default=dt.now())

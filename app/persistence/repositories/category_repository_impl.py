@@ -13,6 +13,7 @@ class CategoryRepositoryImpl(CategoryRepository):
             user_id=entity.user_id,
             type=entity.type,
             name=entity.name,
+            description=entity.description,
         )
         db.session.add(orm)
         db.session.flush()
@@ -27,6 +28,7 @@ class CategoryRepositoryImpl(CategoryRepository):
             user_id=orm.user_id,
             type=orm.type,
             name=orm.name,
+            description=orm.description,
             id=orm.id,
         )
 
@@ -38,6 +40,7 @@ class CategoryRepositoryImpl(CategoryRepository):
             user_id=orm.user_id,
             type=orm.type,
             name=orm.name,
+            description=orm.description,
             id=orm.id,
         )
 
@@ -49,6 +52,7 @@ class CategoryRepositoryImpl(CategoryRepository):
             user_id=orm.user_id,
             type=orm.type,
             name=orm.name,
+            description=orm.description,
             id=orm.id,
         )
 
@@ -59,6 +63,7 @@ class CategoryRepositoryImpl(CategoryRepository):
                 user_id=o.user_id,
                 type=o.type,
                 name=o.name,
+                description=o.description,
                 id=o.id,
             )
             for o in orms
@@ -71,6 +76,7 @@ class CategoryRepositoryImpl(CategoryRepository):
                 user_id=o.user_id,
                 type=o.type,
                 name=o.name,
+                description=o.description,
                 id=o.id,
             )
             for o in orms
@@ -93,6 +99,7 @@ class CategoryRepositoryImpl(CategoryRepository):
         if orm is None:
             raise EntityNotFoundError('Category not found')
         orm.name = entity.name
+        orm.description = entity.description
         db.session.flush()
         return entity
 
@@ -113,6 +120,7 @@ class CategoryRepositoryImpl(CategoryRepository):
                 user_id=o.user_id,
                 type=o.type,
                 name=o.name,
+                description=o.description,
                 id=o.id,
             )
             for o in orms
