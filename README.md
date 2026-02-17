@@ -2,15 +2,16 @@
 
 Flask web app for tracking personal finances with a layered architecture (Routes → Use Cases → Policies/Domain Services → Repositories → SQLAlchemy models).
 
-**Status (February 2026):** Active development. Core auth, dashboard, income, expense, and debt payment flow are implemented.
+**Status (February 18, 2026):** Active development. Core auth, dashboard, income, expense, debt payment, and category management are implemented with create + edit flows.
 
 ## What Works Right Now
 
 - User registration and login/logout
 - Session-protected dashboard
-- Income list + create income
-- Expense list + create expense
-- Income category create/edit and category fetch API
+- Income list + create + edit income
+- Expense list + create + edit expense
+- Category create/edit APIs for both income and expense pages
+- Shared category modal/card UI reused across pages
 - Debt payment flow that records both an expense and a debt payment entry
 - Server-side sessions and MySQL persistence
 
@@ -20,6 +21,15 @@ Flask web app for tracking personal finances with a layered architecture (Routes
 - Savings goals pages/routes are not exposed yet
 - Reports and analytics pages are still planned
 - Automated tests are not set up yet
+
+## Recent Changelog
+
+### 2026-02-18
+- Added category description support end-to-end (model, policy, repository, UI)
+- Added income and expense name support, while keeping source/payee fields
+- Added income and expense edit flows (routes, APIs, use-cases, edit modals)
+- Unified category UI by reusing shared category modal/card components across income and expense pages
+- Updated project documentation (README, project guide, roadmap) to reflect current state
 
 ---
 
@@ -70,6 +80,8 @@ The app reads these in `app/config.py`.
 ### Income (`app/routes/r_income.py`)
 - `GET /income` (requires session)
 - `POST /insert_income` (requires session)
+- `GET /api/income/<income_id>` (requires session)
+- `POST /update_income/<income_id>` (requires session)
 - `POST /insert_income_category` (requires session)
 - `POST /update_income_category/<category_id>` (requires session)
 - `GET /api/income/categories/<category_id>` (requires session)
@@ -77,6 +89,11 @@ The app reads these in `app/config.py`.
 ### Expense (`app/routes/r_expense.py`)
 - `GET /expense` (requires session)
 - `POST /insert_expense` (requires session)
+- `GET /api/expense/<expense_id>` (requires session)
+- `POST /update_expense/<expense_id>` (requires session)
+- `POST /insert_expense_category` (requires session)
+- `POST /update_expense_category/<category_id>` (requires session)
+- `GET /api/expense/categories/<category_id>` (requires session)
 
 ---
 
@@ -142,6 +159,13 @@ SQLAlchemy Models (app/model) + MySQL
 - `app/templates/auth/pages/dashboard.html`
 - `app/templates/auth/pages/income.html`
 - `app/templates/auth/pages/expense.html`
+- Shared category templates:
+    - `app/templates/auth/modals/add_category.html`
+    - `app/templates/auth/modals/edit_category.html`
+    - `app/templates/auth/cards/categories_card.html`
+- Transaction edit templates:
+    - `app/templates/auth/modals/edit_income.html`
+    - `app/templates/auth/modals/edit_expense.html`
 
 ---
 

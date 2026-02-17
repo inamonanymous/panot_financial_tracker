@@ -6,6 +6,7 @@ class Categories(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
     type = db.Column(db.Enum("income", "expense"), nullable=False)
     name = db.Column(db.String(32), nullable=False)
+    description = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=dt.now())
 
     users = db.relationship("Users", foreign_keys=[user_id], backref=db.backref('categories', lazy=True, cascade='all, delete-orphan'))

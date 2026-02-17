@@ -16,6 +16,7 @@ class GetUserExpenseUseCase:
             orm = ExpenseORM.query.filter_by(id=expense.id).first()
             result.append({
                 "id": expense.id,
+                "name": (orm.name if orm and orm.name else ""),
                 "payee": expense.payee,
                 "amount": expense.amount,
                 "category_name": category.name if category else "Unknown",

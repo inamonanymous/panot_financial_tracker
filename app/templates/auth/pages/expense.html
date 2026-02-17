@@ -14,6 +14,13 @@
 
         <!-- Begin Page Content -->
         <div class="container-fluid">
+            <!-- Modal -->
+            {% include 'auth/modals/add_expense.html' %}
+            {% include 'auth/modals/edit_expense.html' %}
+            {% with category_create_endpoint='expense.insert_expense_category_route', add_category_modal_id='addCategoryModal', add_category_modal_label_id='addCategoryModalLabel' %}
+                {% include 'auth/modals/add_category.html' %}
+            {% endwith %}
+            {% include 'auth/modals/edit_category.html' %}
 
             
             <!-- Page Heading -->
@@ -31,13 +38,160 @@
                     {{ error_message }}
                 </label>
             {% endif %}
-            <!-- Modal -->
-            {% include 'auth/modals/add_expense.html' %}
-            <!-- DataTales Example -->
-            {% include 'auth/tables/expense_table.html' %}
+
+            <div class="row">
+                <div class="col-xl-8 col-lg-7">
+                    {% include 'auth/tables/expense_table.html' %}
+                </div>
+                <div class="col-xl-4 col-lg-5">
+                    {% with category_api_endpoint='expense.get_expense_category_api', category_update_endpoint='expense.update_expense_category_route', category_add_modal_target='#addCategoryModal', category_edit_modal_target='#editCategoryModal' %}
+                        {% include 'auth/cards/categories_card.html' %}
+                    {% endwith %}
+                </div>
+            </div>
 
             </div>
             <!-- /.container-fluid -->
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const editButtons = document.querySelectorAll(".js-edit-category-btn");
+                    const form = document.getElementById("editCategoryForm");
+                    const nameInput = document.getElementById("editCategoryName");
+                    const descriptionInput = document.getElementById("editCategoryDescription");
+                    const submitButton = document.getElementById("editCategorySubmit");
+
+                    if (!form || !nameInput || !descriptionInput || !submitButton) {
+                        return;
+                    }
+
+                    const setLoadingState = function (isLoading) {
+                        nameInput.disabled = isLoading;
+                        descriptionInput.disabled = isLoading;
+                        submitButton.disabled = isLoading;
+                    };
+
+                    editButtons.forEach(function (button) {
+                        button.addEventListener("click", function (event) {
+                            event.preventDefault();
+
+                            const apiUrl = button.dataset.categoryApiUrl;
+                            const updateUrl = button.dataset.categoryUpdateUrl;
+
+                            if (!apiUrl || !updateUrl) {
+                                return;
+                            }
+
+                            form.action = updateUrl;
+                            nameInput.value = "";
+                            descriptionInput.value = "";
+                            setLoadingState(true);
+
+                            fetch(apiUrl, {
+                                method: "GET",
+                                headers: {
+                                    "Accept": "application/json"
+                                }
+                            })
+                                .then(function (response) {
+                                    if (!response.ok) {
+                                        throw new Error("Failed to fetch category");
+                                    }
+                                    return response.json();
+                                })
+                                .then(function (data) {
+                                    nameInput.value = data.name || "";
+                                    descriptionInput.value = data.description || "";
+                                })
+                                .catch(function () {
+                                    alert("Unable to load category details. Please try again.");
+                                })
+                                .finally(function () {
+                                    setLoadingState(false);
+                                });
+                        });
+                    });
+                });
+
+                document.addEventListener("DOMContentLoaded", function () {
+                    const editButtons = document.querySelectorAll(".js-edit-expense-btn");
+                    const form = document.getElementById("editExpenseForm");
+                    const categoryInput = document.getElementById("edit_expense_category_id");
+                    const nameInput = document.getElementById("edit_expense_name");
+                    const payeeInput = document.getElementById("edit_expense_payee");
+                    const amountInput = document.getElementById("edit_expense_amount");
+                    const dateInput = document.getElementById("edit_expense_date");
+                    const methodInput = document.getElementById("edit_expense_method");
+                    const remarksInput = document.getElementById("edit_expense_remarks");
+                    const submitButton = document.getElementById("editExpenseSubmit");
+
+                    if (!form || !categoryInput || !nameInput || !payeeInput || !amountInput || !dateInput || !methodInput || !remarksInput || !submitButton) {
+                        return;
+                    }
+
+                    const setLoadingState = function (isLoading) {
+                        categoryInput.disabled = isLoading;
+                        nameInput.disabled = isLoading;
+                        payeeInput.disabled = isLoading;
+                        amountInput.disabled = isLoading;
+                        dateInput.disabled = isLoading;
+                        methodInput.disabled = isLoading;
+                        remarksInput.disabled = isLoading;
+                        submitButton.disabled = isLoading;
+                    };
+
+                    editButtons.forEach(function (button) {
+                        button.addEventListener("click", function (event) {
+                            event.preventDefault();
+
+                            const apiUrl = button.dataset.expenseApiUrl;
+                            const updateUrl = button.dataset.expenseUpdateUrl;
+
+                            if (!apiUrl || !updateUrl) {
+                                return;
+                            }
+
+                            form.action = updateUrl;
+                            categoryInput.value = "";
+                            nameInput.value = "";
+                            payeeInput.value = "";
+                            amountInput.value = "";
+                            dateInput.value = "";
+                            methodInput.value = "cash";
+                            remarksInput.value = "";
+                            setLoadingState(true);
+
+                            fetch(apiUrl, {
+                                method: "GET",
+                                headers: {
+                                    "Accept": "application/json"
+                                }
+                            })
+                                .then(function (response) {
+                                    if (!response.ok) {
+                                        throw new Error("Failed to fetch expense");
+                                    }
+                                    return response.json();
+                                })
+                                .then(function (data) {
+                                    categoryInput.value = data.category_id || "";
+                                    nameInput.value = data.name || "";
+                                    payeeInput.value = data.payee || "";
+                                    amountInput.value = data.amount || "";
+                                    dateInput.value = data.expense_date || "";
+                                    methodInput.value = data.payment_method || "cash";
+                                    remarksInput.value = data.remarks || "";
+                                })
+                                .catch(function () {
+                                    alert("Unable to load expense details. Please try again.");
+                                })
+                                .finally(function () {
+                                    setLoadingState(false);
+                                });
+                        });
+                    });
+                });
+            </script>
 
         </div>
     <!-- End of Main Content -->

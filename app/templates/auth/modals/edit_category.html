@@ -1,26 +1,31 @@
-<div class="modal fade" id="editCategoryModal" tabindex="-1" role="dialog" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="{{ edit_category_modal_id|default('editCategoryModal') }}" tabindex="-1" role="dialog" aria-labelledby="{{ edit_category_modal_label_id|default('editCategoryModalLabel') }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="editCategoryModalLabel">Edit Category</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="modal-body">
-            
-            <form method="POST" action="" id="editCategoryForm">
-                <!-- Name field -->
-                <input type="text" class="form-control" id="editCategoryName" name="name" placeholder="Salary, Freelance..." required>
-                
-                <!-- Submit button -->
-                <button type="submit" class="btn btn-primary" id="editCategorySubmit">Save Changes</button>
-            </form>
+            <div class="modal-header">
+                <h5 class="modal-title" id="{{ edit_category_modal_label_id|default('editCategoryModalLabel') }}">{{ edit_category_title|default('Edit Category') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
 
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        </div>
+            <form method="POST" action="" id="{{ edit_category_form_id|default('editCategoryForm') }}" novalidate>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="{{ edit_category_name_id|default('editCategoryName') }}" class="font-weight-bold">Category Name</label>
+                        <input type="text" class="form-control" id="{{ edit_category_name_id|default('editCategoryName') }}" name="name" placeholder="Salary, Freelance" required>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label for="{{ edit_category_description_id|default('editCategoryDescription') }}" class="font-weight-bold">Description</label>
+                        <textarea class="form-control" id="{{ edit_category_description_id|default('editCategoryDescription') }}" name="description" rows="3" placeholder="Optional: describe this category"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="{{ edit_category_submit_id|default('editCategorySubmit') }}">Save Changes</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

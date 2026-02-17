@@ -2,7 +2,7 @@
     <div class="card-header py-3 row">
         <h6 class="col m-0 font-weight-bold text-primary">Categories</h6>
         
-        <a href="#" class="col d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" data-target="#addCategoryModal" data-toggle="modal">
+        <a href="#" class="col d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" data-target="{{ category_add_modal_target|default('#addCategoryModal') }}" data-toggle="modal">
             Add Category
         </a>
     </div>
@@ -13,16 +13,20 @@
                 <div class="d-flex justify-content-between">
                     <div class="fit-content-width col-md-6">
                         <span>{{ c.name }}</span>
+                        {% if c.description %}
+                            <br>
+                            <small class="text-muted">{{ c.description }}</small>
+                        {% endif %}
                     </div>
                     <div class="fit-content-width col-md-6">
                         <a
                             class="link-opacity-50-hover js-edit-category-btn"
                             href="#"
                             data-toggle="modal"
-                            data-target="#editCategoryModal"
+                            data-target="{{ category_edit_modal_target|default('#editCategoryModal') }}"
                             data-category-id="{{ c.id }}"
-                            data-category-api-url="{{ url_for('income.get_income_category_api', category_id=c.id) }}"
-                            data-category-update-url="{{ url_for('income.update_income_category_route', category_id=c.id) }}"
+                            data-category-api-url="{{ url_for(category_api_endpoint|default('income.get_income_category_api'), category_id=c.id) }}"
+                            data-category-update-url="{{ url_for(category_update_endpoint|default('income.update_income_category_route'), category_id=c.id) }}"
                         >
                             <i class="bi bi-pencil" style="color: cornflowerblue;"></i>
                         </a>

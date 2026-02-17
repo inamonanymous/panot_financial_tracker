@@ -16,9 +16,10 @@ class Expense:
         self,
         user_id: int,
         category_id: int,
-        payee: str,
         amount: float,
         expense_date: date,
+        name: str,
+        payee: str,
         payment_method: str = "cash",
         remarks: str = "",
         id: int = None
@@ -29,7 +30,8 @@ class Expense:
         Args:
             user_id: Owner of the expense
             category_id: Expense category
-            payee: Who/what the expense was paid to
+            name: Expense name/title
+            payee: Payee (person/company/account receiving payment)
             amount: Amount spent
             expense_date: When the expense occurred
             payment_method: How it was paid
@@ -42,7 +44,10 @@ class Expense:
         self.id = id
         self.user_id = self._validate_user_id(user_id)
         self.category_id = self._validate_category_id(category_id)
-        self.payee = self._validate_payee(payee)
+        resolved_name = name if name is not None else payee
+        resolved_payee = payee if payee is not None else name
+        self.name = self._validate_name(resolved_name)
+        self.payee = self._validate_payee(resolved_payee)
         self.amount = self._validate_amount(amount)
         self.expense_date = self._validate_expense_date(expense_date)
         self.payment_method = self._validate_payment_method(payment_method)
@@ -61,15 +66,27 @@ class Expense:
         return category_id
     
     @staticmethod
+    def _validate_name(name: str) -> str:
+        if not isinstance(name, str):
+            raise InvalidExpenseError("name must be a string")
+        
+        name = name.strip()
+        
+        if len(name) < 1:
+            raise InvalidExpenseError("name cannot be empty")
+        
+        return name
+
+    @staticmethod
     def _validate_payee(payee: str) -> str:
         if not isinstance(payee, str):
             raise InvalidExpenseError("payee must be a string")
-        
+
         payee = payee.strip()
-        
+
         if len(payee) < 1:
             raise InvalidExpenseError("payee cannot be empty")
-        
+
         return payee
     
     @staticmethod
@@ -115,12 +132,16 @@ class Expense:
     
     def update(
         self,
+        name: str = None,
         payee: str = None,
         amount: float = None,
         payment_method: str = None,
         remarks: str = None
     ) -> None:
         """Update expense details with validation"""
+        if name is not None:
+            self.name = self._validate_name(name)
+
         if payee is not None:
             self.payee = self._validate_payee(payee)
         
@@ -135,7 +156,7 @@ class Expense:
     
     def __repr__(self) -> str:
         return (
-            f"Expense(id={self.id}, payee={self.payee}, amount={self.amount}, "
+            f"Expense(id={self.id}, name={self.name}, amount={self.amount}, "
             f"expense_date={self.expense_date})"
         )
     

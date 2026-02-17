@@ -5,6 +5,7 @@ class Income(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id', ondelete="CASCADE"), nullable=False)
+    name = db.Column(db.String(80), nullable=False)
     source = db.Column(db.String(55), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     received_date = db.Column(db.Date, default=dt.now().date)
