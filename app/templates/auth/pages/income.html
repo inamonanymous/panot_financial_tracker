@@ -14,7 +14,10 @@
 
         <!-- Begin Page Content -->
         <div class="container-fluid">
-
+            <!-- Modal -->
+            {% include 'auth/modals/add_income.html' %}
+            {% include 'auth/modals/add_category.html' %}
+            {% include 'auth/modals/edit_category.html' %}
             
             <!-- Page Heading -->
             <h1 class="h3 mb-2 text-gray-800">My Income</h1>
@@ -31,33 +34,76 @@
                     {{ error_message }}
                 </label>
             {% endif %}
-            <!-- Modal -->
-            {% include 'auth/modals/add_income.html' %}
+            
             <!-- DataTales Example -->
              <div class="row">
                 <div class="col-xl-8 col-lg-7">
                     {% include 'auth/tables/income_table.html' %}
                 </div>
                 <div class="col-xl-4 col-lg-5">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Categories</h6>
-                        </div>
-                        <div class="card-body">
-                            {% for c in user_categories %}
-                            <ol>
-                                <li>
-                                    <span>{{ c.name }}</span>
-                                </li>
-                                </div>
-                            </ol>
-                            {% endfor %}
-                        </div>
-                    </div>
+                    {% include 'auth/cards/categories_card.html' %}
                 </div>
              </div>
         </div>
         <!-- /.container-fluid -->
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const editButtons = document.querySelectorAll(".js-edit-category-btn");
+                const form = document.getElementById("editCategoryForm");
+                const nameInput = document.getElementById("editCategoryName");
+                const submitButton = document.getElementById("editCategorySubmit");
+
+                if (!form || !nameInput || !submitButton) {
+                    return;
+                }
+
+                const setLoadingState = function (isLoading) {
+                    nameInput.disabled = isLoading;
+                    submitButton.disabled = isLoading;
+                };
+
+                editButtons.forEach(function (button) {
+                    button.addEventListener("click", function (event) {
+                        event.preventDefault();
+
+                        const apiUrl = button.dataset.categoryApiUrl;
+                        const updateUrl = button.dataset.categoryUpdateUrl;
+
+                        if (!apiUrl || !updateUrl) {
+                            return;
+                        }
+
+                        form.action = updateUrl;
+                        nameInput.value = "";
+                        setLoadingState(true);
+
+                        fetch(apiUrl, {
+                            method: "GET",
+                            headers: {
+                                "Accept": "application/json"
+                            }
+                        })
+                            .then(function (response) {
+                                if (!response.ok) {
+                                    throw new Error("Failed to fetch category");
+                                }
+                                return response.json();
+                            })
+                            .then(function (data) {
+                                nameInput.value = data.name || "";
+                            })
+                            .catch(function () {
+                                nameInput.value = "";
+                                alert("Unable to load category details. Please try again.");
+                            })
+                            .finally(function () {
+                                setLoadingState(false);
+                            });
+                    });
+                });
+            });
+        </script>
 
         </div>
         <!-- End of Main Content -->
