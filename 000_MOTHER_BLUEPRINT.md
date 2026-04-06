@@ -140,6 +140,5 @@ A story is done when:
 ## 10) Current Project Mapping
 For this Finance Project, supporting blueprints are:
 - `PROJECT_BLUEPRINT_CURRENT.md`
-- `PROJECT_BLUEPRINT_TEMPLATE.md`
 
 But this file (`000_MOTHER_BLUEPRINT.md`) is the first required read and workflow authority.

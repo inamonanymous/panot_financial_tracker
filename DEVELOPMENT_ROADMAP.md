@@ -14,6 +14,7 @@
 - [x] Category create + edit for income and expense contexts
 - [x] Shared category card/modal UI reused across income and expense pages
 - [x] Debt payment flow (creates expense + debt payment record)
+- [x] Debt list + edit page + use case
 - [x] `name` support added to income and expense models
 - [x] Validation now requires both:
   - Income: `name` and `source`
@@ -44,7 +45,7 @@
 ### 3) Debt Management Module (CRUD)
 **Priority:** Medium
 
-- Add debt create/list/edit/delete routes + use-cases
+- Add debt create/list/edit/delete routes + use-cases (delete remains pending)
 - Reuse existing debt calculators for enriched listing
 - Add debt page templates (table + modal forms)
 

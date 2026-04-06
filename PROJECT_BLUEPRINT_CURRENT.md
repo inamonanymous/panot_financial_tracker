@@ -16,6 +16,7 @@ Build a personal finance tracker where a user can manage income, expenses, categ
 - Categories: create, edit (income/expense contexts)
 - Category description field support
 - Debt payment flow (creates expense + debt payment record)
+- Debt page + edit flow (partial debt CRUD)
 
 ### In Scope (Planned / Not Fully Wired)
 - Transaction deletion (income/expense)
@@ -76,7 +77,8 @@ Build a personal finance tracker where a user can manage income, expenses, categ
 
 ### Debt
 - FR-DB1: Record debt payment
-- FR-DB2 (Planned): Debt CRUD pages + use-cases
+- FR-DB2: List and edit owned debt records
+- FR-DB3 (Planned): Delete debt record
 
 ### Savings / Reporting (Planned)
 - FR-S1: Savings goal CRUD
