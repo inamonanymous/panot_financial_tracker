@@ -5,6 +5,8 @@ class CreateIncomeUseCase:
         self.uow = unit_of_work
         self.tx_policy = TransactionPolicy()
 
+
+
     def execute(self, income_data: dict):
         clean_income = self.tx_policy.validate_insert_income(income_data)
 
