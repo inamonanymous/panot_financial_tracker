@@ -1,5 +1,5 @@
 from app.domain.policies.p_TransactionPolicy import TransactionPolicy
-
+from app.domain.exceptions import InvalidExpenseError
 
 class EditExpenseUseCase:
     def __init__(self, unit_of_work):
@@ -13,7 +13,7 @@ class EditExpenseUseCase:
         if "category_id" in clean_data:
             category = self.uow.categories.get_by_id_and_user_id(clean_data["category_id"], user_id)
             if not category:
-                raise Exception("Category not found or does not belong to user")
+                raise InvalidExpenseError("Category not found or does not belong to user")
             expense.category_id = clean_data["category_id"]
 
         expense.update(

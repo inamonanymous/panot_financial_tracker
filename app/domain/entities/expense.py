@@ -22,7 +22,8 @@ class Expense:
         payee: str,
         payment_method: str = "cash",
         remarks: str = "",
-        id: int = None
+        id: int = None,
+        created_at: datetime = None
     ):
         """
         Initialize an Expense entity.
@@ -36,8 +37,7 @@ class Expense:
             expense_date: When the expense occurred
             payment_method: How it was paid
             remarks: Optional notes
-            id: Expense ID (optional, assigned by database)
-        
+            id: Expense ID (optional, assigned by database)            created_at: When the record was created (optional, assigned by database)        
         Raises:
             InvalidExpenseError: If any field violates domain rules
         """
@@ -52,6 +52,7 @@ class Expense:
         self.expense_date = self._validate_expense_date(expense_date)
         self.payment_method = self._validate_payment_method(payment_method)
         self.remarks = remarks.strip() if isinstance(remarks, str) else ""
+        self.created_at = created_at
     
     @staticmethod
     def _validate_user_id(user_id: int) -> int:

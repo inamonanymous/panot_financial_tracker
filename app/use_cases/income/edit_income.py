@@ -1,5 +1,5 @@
 from app.domain.policies.p_TransactionPolicy import TransactionPolicy
-
+from app.domain.exceptions import InvalidIncomeError
 
 class EditIncomeUseCase:
     def __init__(self, unit_of_work):
@@ -13,7 +13,7 @@ class EditIncomeUseCase:
         if "category_id" in clean_data:
             category = self.uow.categories.get_by_id_and_user_id(clean_data["category_id"], user_id)
             if not category:
-                raise Exception("Category not found or does not belong to user")
+                raise InvalidIncomeError("Category not found or does not belong to user")
             income.category_id = clean_data["category_id"]
 
         income.update(

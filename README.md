@@ -2,7 +2,16 @@
 
 Flask web app for tracking personal finances with a layered architecture (Routes → Use Cases → Policies/Domain Services → Repositories → SQLAlchemy models).
 
-**Status (February 18, 2026):** Active development. Core auth, dashboard, income, expense, debt payment, and category management are implemented with create + edit flows.
+## START HERE (Mandatory)
+
+Before any planning, design, or coding, read:
+- `000_MOTHER_BLUEPRINT.md` ← first required document
+
+Then use supporting blueprints:
+- `PROJECT_BLUEPRINT_CURRENT.md`
+- `ARCHITECTURE_RULES.md` ← architecture contract used for refactor steps
+
+**Status (February 18, 2026):** Active development. Core auth, dashboard, income, expense, debt payment, debt listing/edit, and category management are implemented with create + edit flows.
 
 ## What Works Right Now
 
@@ -13,11 +22,13 @@ Flask web app for tracking personal finances with a layered architecture (Routes
 - Category create/edit APIs for both income and expense pages
 - Shared category modal/card UI reused across pages
 - Debt payment flow that records both an expense and a debt payment entry
+- Debt listing page with edit route/modal
 - Server-side sessions and MySQL persistence
 
 ## In Progress / Not Fully Wired
 
 - Standalone category blueprint (`app/routes/r_category.py`) exists but is not registered in app factory yet
+- Debt delete flow is not implemented yet
 - Savings goals pages/routes are not exposed yet
 - Reports and analytics pages are still planned
 - Automated tests are not set up yet
@@ -58,12 +69,20 @@ Create a `.env` file in project root with:
 DATABASE_URI=mysql+mysqldb://<user>:<password>@<host>/<database>
 SECRET_KEY=your_secret_key
 SESSION_TYPE=sqlalchemy
+SESSION_SQLALCHEMY_TABLE=flask_sessions
 SESSION_PERMANENT=false
 SESSION_USE_SIGNER=true
 PERMANENT_SESSION_LIFETIME=3600
+SESSION_COOKIE_HTTPONLY=true
+SESSION_COOKIE_SECURE=false
+SESSION_COOKIE_SAMESITE=Lax
+SESSION_REFRESH_EACH_REQUEST=false
+SESSION_CLEANUP_INTERVAL_SECONDS=300
 ```
 
 The app reads these in `app/config.py`.
+
+> Set `SESSION_COOKIE_SECURE=true` in production (HTTPS).
 
 ---
 
@@ -94,6 +113,12 @@ The app reads these in `app/config.py`.
 - `POST /insert_expense_category` (requires session)
 - `POST /update_expense_category/<category_id>` (requires session)
 - `GET /api/expense/categories/<category_id>` (requires session)
+
+### Debts (`app/routes/r_debts.py`)
+- `GET /debts` (requires session)
+- `POST /insert_debt` (requires session)
+- `GET /api/debts/<debt_id>` (requires session)
+- `POST /update_debt/<debt_id>` (requires session)
 
 ---
 

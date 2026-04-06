@@ -46,6 +46,27 @@ class TransactionAnalyzer:
         for income in incomes:
             result[income.category_id] = result.get(income.category_id, 0) + income.amount
         return result
+
+    @staticmethod
+    def is_category_used_by_transactions(
+        category_id: int,
+        incomes: List[Income],
+        expenses: List[Expense],
+    ) -> bool:
+        """
+        Check if a category is referenced by any income or expense transaction.
+
+        Args:
+            category_id: Category ID to check
+            incomes: User income transactions
+            expenses: User expense transactions
+
+        Returns:
+            True if category is used by at least one transaction, otherwise False
+        """
+        income_uses_category = any(i.category_id == category_id for i in incomes)
+        expense_uses_category = any(e.category_id == category_id for e in expenses)
+        return income_uses_category or expense_uses_category
     
     @staticmethod
     def get_transactions_by_date_range(

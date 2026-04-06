@@ -22,6 +22,7 @@ class DebtRepositoryImpl(DebtRepository):
         db.session.add(orm)
         db.session.flush()
         entity.id = orm.id
+        entity.created_at = orm.created_at
         return entity
 
     def get_by_id(self, debt_id: int) -> Optional[DomainDebt]:
@@ -68,6 +69,7 @@ class DebtRepositoryImpl(DebtRepository):
                 due_date=o.due_date,
                 name=o.name,
                 status=o.status,
+                created_at=o.created_at,
                 id=o.id,
             )
             for o in orms

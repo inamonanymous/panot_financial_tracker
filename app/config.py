@@ -8,6 +8,7 @@ load_dotenv()
 class ApplicationConfig:
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')
     SECRET_KEY = os.getenv('SECRET_KEY')
+
     SESSION_TYPE = os.getenv('SESSION_TYPE')
     SESSION_SQLALCHEMY = db
     SESSION_PERMANENT = os.getenv('SESSION_PERMANENT').lower() == 'false'

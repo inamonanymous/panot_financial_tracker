@@ -1,5 +1,5 @@
 from app.domain.policies.p_TransactionPolicy import TransactionPolicy
-
+from app.domain.exceptions import InvalidCategoryError
 class CreateIncomeUseCase:
     def __init__(self, unit_of_work):
         self.uow = unit_of_work
@@ -10,7 +10,7 @@ class CreateIncomeUseCase:
 
         category = self.uow.categories.get_by_id_and_user_id(clean_income["category_id"], clean_income["user_id"])
         if not category:
-            raise Exception("Category not found or does not belong to user")
+            raise InvalidCategoryError("Category not found or does not belong to user")
 
         income = self.uow.incomes.create(**clean_income)
 

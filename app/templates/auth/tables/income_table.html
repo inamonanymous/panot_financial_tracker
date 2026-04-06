@@ -48,6 +48,11 @@
                                 >
                                     <i class="bi bi-pencil" style="color: cornflowerblue;"></i>
                                 </a>
+                                <form method="POST" action="{{ url_for('income.delete_income_route', income_id=i.id) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-link p-0 border-0" onclick="return confirm('Delete this income record?');" aria-label="Delete income">
+                                        <i class="bi bi-trash" style="color: #dc3545;"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     {% endfor %}

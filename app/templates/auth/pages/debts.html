@@ -15,20 +15,18 @@
         <!-- Begin Page Content -->
         <div class="container-fluid">
             <!-- Modal -->
-            {% include 'auth/modals/add_income.html' %}
-            {% include 'auth/modals/edit_income.html' %}
-            {% include 'auth/modals/add_category.html' %}
-            {% include 'auth/modals/edit_category.html' %}
+            {% include 'auth/modals/add_debt.html' %}
+            {% include 'auth/modals/edit_debt.html' %}
             
             <!-- Page Heading -->
-            <h1 class="h3 mb-2 text-gray-800">My Income</h1>
+            <h1 class="h3 mb-2 text-gray-800">My Debts</h1>
             <p class="mb-4">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
             </p>
 
             <!-- Button trigger modal -->
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addIncomeModal">
-            Add Income
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addDebtModal">
+            Add Debt
             </button>
             {% if error_message %}
                 <label for="validationError" class="form-label text-danger">
@@ -37,21 +35,13 @@
             {% endif %}
             
             <!-- DataTales Example -->
-             <div class="row">
-                <div class="col-xl-8 col-lg-7">
-                    {% include 'auth/tables/income_table.html' %}
-                </div>
-                <div class="col-xl-4 col-lg-5">
-                    {% with category_api_endpoint='income.get_income_category_api', category_update_endpoint='income.update_income_category_route', category_delete_endpoint='income.delete_income_category_route', category_add_modal_target='#addCategoryModal', category_edit_modal_target='#editCategoryModal' %}
-                        {% include 'auth/cards/categories_card.html' %}
-                    {% endwith %}
-                </div>
-             </div>
+            {% include 'auth/tables/debts_table.html' %}
+
         </div>
         <!-- /.container-fluid -->
 
         <script src="{{ url_for('static', filename='js/pages/edit-form-helper.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/pages/income-page.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/pages/debts-page.js') }}"></script>
 
         </div>
         <!-- End of Main Content -->

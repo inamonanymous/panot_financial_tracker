@@ -4,7 +4,7 @@ import re
 
 class CategoryPolicy(BasePolicy):
     @staticmethod
-    def _clean_description(description):
+    def clean_description(description):
         if description is None:
             return None
 
@@ -31,7 +31,7 @@ class CategoryPolicy(BasePolicy):
             raise PolicyError("Type should be income or expense only")
         
         filtered_category_data["name"] = self.validate_string(filtered_category_data["name"], "Category Name", min_len=3)
-        filtered_category_data["description"] = self._clean_description(filtered_category_data.get("description"))
+        filtered_category_data["description"] = self.clean_description(filtered_category_data.get("description"))
         
         return filtered_category_data
 
@@ -51,15 +51,15 @@ class CategoryPolicy(BasePolicy):
         self.validate_id_values(clean["category_id"], "Category ID")
         self.validate_id_values(clean["user_id"], "User ID")
         clean["name"] = self.validate_string(clean["name"], "Category Name", min_len=3)
-        clean["description"] = self._clean_description(clean.get("description"))
+        clean["description"] = self.clean_description(clean.get("description"))
 
         return clean
     
     def validate_category_deletion(self, category, current_user_id: int, category_in_use_checker: object):
-        if category_in_use_checker is not None:
-            raise PolicyError(f"Cannot delete category in use '{category.name}'")
         if category is None:
             raise PolicyError("No Category instance found")
+        if category_in_use_checker:
+            raise PolicyError(f"Cannot delete category in use '{category.name}'")
         if category.user_id != current_user_id:
             raise PolicyError(f"Cannot delete category user don't own '{category.name}'")
         

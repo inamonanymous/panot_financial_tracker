@@ -1,58 +1,55 @@
-from flask import Blueprint, render_template, redirect, session, url_for, request, jsonify
-from functools import wraps
+from flask import Blueprint, render_template, request, jsonify
 from app.use_cases.expense.create_expense import CreateExpenseUseCase
 from app.use_cases.expense.get_user_expense import GetUserExpenseUseCase
 from app.use_cases.expense.edit_expense import EditExpenseUseCase
+from app.use_cases.expense.delete_expense import DeleteExpenseUseCase
 from app.use_cases.category.create_category import CreateCategoryUseCase
-from app.utils.exceptions.ServiceError import ServiceError
-from app.routes.functions import require_user_session, get_current_user
-#from app.use_cases.expense.get_user_expense import GetUserexpenseUseCase
-#from app.use_cases.expense.create_expense import CreateexpenseUseCase
+from app.use_cases.category.delete_category import DeleteCategoryUseCase
+from app.routes.functions import redirect_on_action, require_user_session, get_current_user
 from app.service import UOW
 
 expense = Blueprint(
     'expense',
     __name__,
     template_folder='templates',
-    static_folder='statice'
+    static_folder='static'
 )
 
 
-@require_user_session
 @expense.route('/insert_expense_category', methods=['POST'])
+@require_user_session
+@redirect_on_action('expense.expense_page')
 def insert_expense_category_route():
     user = get_current_user()
     form_data = request.form.to_dict()
     form_data["user_id"] = user.id
     form_data["type"] = "expense"
-
-    try:
-        use_case = CreateCategoryUseCase(UOW)
-        use_case.execute(form_data)
-        return redirect(url_for('expense.expense_page'))
-    except Exception as e:
-        return redirect(url_for('expense.expense_page', error_message=str(e)))
+    use_case = CreateCategoryUseCase(UOW)
+    use_case.execute(form_data)
 
 
-@require_user_session
 @expense.route('/update_expense_category/<int:category_id>', methods=['POST'])
+@require_user_session
+@redirect_on_action('expense.expense_page')
 def update_expense_category_route(category_id: int):
     user = get_current_user()
     form_data = request.form.to_dict()
+    form_data["user_id"] = user.id
+    form_data["category_id"] = category_id
+    from app.use_cases.category.edit_category import EditCategoryUseCase
+    use_case = EditCategoryUseCase(UOW)
+    use_case.execute(form_data)
 
-    try:
-        form_data["user_id"] = user.id
-        form_data["category_id"] = category_id
-        from app.use_cases.category.edit_category import EditCategoryUseCase
-        use_case = EditCategoryUseCase(UOW)
-        use_case.execute(form_data)
-        return redirect(url_for('expense.expense_page'))
-    except Exception as e:
-        return redirect(url_for('expense.expense_page', error_message=str(e)))
-
-
+@expense.route('/delete_expense_category/<int:category_id>', methods=['POST'])
 @require_user_session
+@redirect_on_action('expense.expense_page')
+def delete_expense_category_route(category_id: int):
+    user = get_current_user()
+    use_case = DeleteCategoryUseCase(UOW)
+    use_case.execute(category_id, user.id)
+
 @expense.route('/api/expense/categories/<int:category_id>', methods=['GET'])
+@require_user_session
 def get_expense_category_api(category_id: int):
     user = get_current_user()
     category = UOW.categories.get_by_id_and_user_id(category_id, user.id)
@@ -67,23 +64,20 @@ def get_expense_category_api(category_id: int):
         "type": category.type,
     }), 200
 
-@require_user_session
 @expense.route('/insert_expense', methods=['POST'])
+@require_user_session
+@redirect_on_action('expense.expense_page')
 def insert_expense_route():
     user = get_current_user()
     form_data = request.form.to_dict()
     form_data["user_id"] = user.id
 
-    try:
-        use_case = CreateExpenseUseCase(UOW)
-        saved_expense = use_case.execute(form_data)
-        return redirect(url_for('expense.expense_page'))
-    except Exception as e:
-        return redirect(url_for('expense.expense_page', error_message=str(e)))
+    use_case = CreateExpenseUseCase(UOW)
+    use_case.execute(form_data)
 
 
-@require_user_session
 @expense.route('/api/expense/<int:expense_id>', methods=['GET'])
+@require_user_session
 def get_expense_api(expense_id: int):
     user = get_current_user()
     expense_record = UOW.expenses.get_by_id_and_user_id(expense_id, user.id)
@@ -103,22 +97,27 @@ def get_expense_api(expense_id: int):
     }), 200
 
 
-@require_user_session
 @expense.route('/update_expense/<int:expense_id>', methods=['POST'])
+@require_user_session
+@redirect_on_action('expense.expense_page')
 def update_expense_route(expense_id: int):
     user = get_current_user()
     form_data = request.form.to_dict()
-
-    try:
-        use_case = EditExpenseUseCase(UOW)
-        use_case.execute(expense_id, user.id, form_data)
-        return redirect(url_for('expense.expense_page'))
-    except Exception as e:
-        return redirect(url_for('expense.expense_page', error_message=str(e)))
+    use_case = EditExpenseUseCase(UOW)
+    use_case.execute(expense_id, user.id, form_data)
 
 
+@expense.route('/delete_expense/<int:expense_id>', methods=['POST'])
 @require_user_session
+@redirect_on_action('expense.expense_page')
+def delete_expense_route(expense_id: int):
+    user = get_current_user()
+    use_case = DeleteExpenseUseCase(UOW)
+    use_case.execute(expense_id, user.id)
+
+
 @expense.route('/expense', methods=['GET'])
+@require_user_session
 def expense_page():
     user = get_current_user()
     error_message = request.args.get("error_message")
@@ -133,4 +132,4 @@ def expense_page():
                          user=user, 
                          expense=all_expense,
                          user_categories=user_categories,
-                         error_message=error_message)# Pass to template
+                         error_message=error_message)

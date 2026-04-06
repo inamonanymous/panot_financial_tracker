@@ -10,12 +10,15 @@ class FinancialCalculationsPolicy(BasePolicy):
     def validate_insert_debt(self, data: dict) -> dict:
         clean = self.create_resource(
             data,
-            required=["user_id","lender", "principal", "interest_rate", "start_date", "due_date"],
-            allowed=["user_id", "lender", "principal", "interest_rate", "start_date", "due_date"]
+            required=["user_id", "name", "lender", "principal", "interest_rate", "start_date", "due_date"],
+            allowed=["user_id", "name", "lender", "principal", "interest_rate", "start_date", "due_date"]
         )
-        
+
+        clean["name"] = self.validate_string(clean["name"], "Debt Name", min_len=3)
+        clean["lender"] = self.validate_string(clean["lender"], "Lender", min_len=3)
+        clean["user_id"] = self.validate_id_values(value=clean["user_id"], field_name="User ID")
         clean["principal"] = self.validate_numeric_values(value=clean["principal"], field_name="Principal", allow_zero=False)
-        clean["interest_rate"] = self.validate_numeric_values(clean["interest_rate"], field_name="Interest Rate", allow_zero=False)
+        clean["interest_rate"] = self.validate_numeric_values(clean["interest_rate"] or 0, field_name="Interest Rate", allow_zero=True)
         clean["start_date"] = self.validate_date_value(clean["start_date"], "Start Date", allow_future=False, allow_past=True)
         clean["due_date"] = self.validate_date_value(clean["due_date"], "Due Date", allow_future=True, allow_past=False)
         self.validate_allowed_debt_amounts(principal=clean["principal"], interest_rate=clean["interest_rate"])
@@ -26,15 +29,18 @@ class FinancialCalculationsPolicy(BasePolicy):
         if debt is None:
             raise PolicyError("Debt not found")
         
-        clean = self.update_resource(data, allowed=["lender", "principal", "interest_rate"])
+        clean = self.update_resource(data, allowed=["name", "lender", "principal", "interest_rate"])
+
+        if "name" in clean:
+            clean["name"] = self.validate_string(clean["name"], "Debt Name", min_len=3)
 
         if "lender" in clean:
             clean["lender"] = self.validate_string(clean["lender"], "Lender", 3)
 
         if "principal" in clean:
-            clean["principal"] = self.validate_numeric_values(value=clean["principal"], field_name="Principal", allow_zero=False)
+            clean["principal"] = self.validate_numeric_values(value=clean["principal"] or 0, field_name="Principal", allow_zero=False)
         if "interest_rate" in clean:
-            clean["interest_rate"] = self.validate_numeric_values(clean["interest_rate"], field_name="Interest Rate", allow_zero=False)
+            clean["interest_rate"] = self.validate_numeric_values(clean["interest_rate"] or 0, field_name="Interest Rate", allow_zero=True)
 
         self.validate_allowed_debt_amounts(principal=clean.get("principal"), interest_rate=clean.get("interest_rate"))
 

@@ -1,13 +1,11 @@
-from flask import Blueprint, render_template, redirect, session, url_for, request, jsonify
-from functools import wraps
+from flask import Blueprint, render_template, request, jsonify
 from app.use_cases.category.create_category import CreateCategoryUseCase
-from app.domain.policies.p_CategoryPolicy import CategoryPolicy
-from app.utils.exceptions.PolicyError import PolicyError
-from app.utils.exceptions.ServiceError import ServiceError
-from app.routes.functions import require_user_session, get_current_user
+from app.routes.functions import require_user_session, get_current_user, redirect_on_action
 from app.use_cases.income.get_user_income import GetUserIncomeUseCase
 from app.use_cases.income.create_income import CreateIncomeUseCase
 from app.use_cases.income.edit_income import EditIncomeUseCase
+from app.use_cases.income.delete_income import DeleteIncomeUseCase
+from app.use_cases.category.delete_category import DeleteCategoryUseCase
 from app.service import UOW
 
 income = Blueprint(
@@ -17,40 +15,42 @@ income = Blueprint(
     static_folder='static'
 )
 
-@require_user_session
 @income.route('/insert_income_category', methods=['POST'])
+@require_user_session
+@redirect_on_action('income.income_page')
 def insert_income_category_route():
     user = get_current_user()
     form_data = request.form.to_dict()
     form_data["user_id"] = user.id
     form_data["type"] = "income"  # Set type to income for this route
 
-    try:
-        use_case = CreateCategoryUseCase(UOW)
-        saved_category = use_case.execute(form_data)
+    use_case = CreateCategoryUseCase(UOW)
+    use_case.execute(form_data)
 
-        return redirect(url_for('income.income_page'))
-    except Exception as e:   
-        return redirect(url_for('income.income_page', error_message=str(e)))
-
-@require_user_session
 @income.route('/update_income_category/<int:category_id>', methods=['POST'])
+@require_user_session
+@redirect_on_action('income.income_page')
 def update_income_category_route(category_id: int):
     user = get_current_user()
     form_data = request.form.to_dict()
+    form_data["user_id"] = user.id
+    form_data["category_id"] = category_id
+    from app.use_cases.category.edit_category import EditCategoryUseCase
+    use_case = EditCategoryUseCase(UOW)
+    use_case.execute(form_data)
 
-    try:
-        form_data["user_id"] = user.id
-        form_data["category_id"] = category_id
-        from app.use_cases.category.edit_category import EditCategoryUseCase
-        use_case = EditCategoryUseCase(UOW)
-        use_case.execute(form_data)
-        return redirect(url_for('income.income_page'))
-    except Exception as e:
-        return redirect(url_for('income.income_page', error_message=str(e)))
 
+@income.route('/delete_income_category/<int:category_id>', methods=['POST'])
 @require_user_session
+@redirect_on_action('income.income_page')
+def delete_income_category_route(category_id: int):
+    user = get_current_user()
+
+    use_case = DeleteCategoryUseCase(UOW)
+    use_case.execute(category_id, user.id)
+
 @income.route('/api/income/categories/<int:category_id>', methods=['GET'])
+@require_user_session
 def get_income_category_api(category_id: int):
     user = get_current_user()
     category = UOW.categories.get_by_id_and_user_id(category_id, user.id)
@@ -65,26 +65,21 @@ def get_income_category_api(category_id: int):
         "type": category.type
     }), 200
 
-@require_user_session
 @income.route('/insert_income', methods=['POST'])
+@require_user_session
+@redirect_on_action('income.income_page')
 def insert_income_route():
     user = get_current_user()
     
     form_data = request.form.to_dict()
     form_data["user_id"] = user.id
 
-    try:
-        use_case = CreateIncomeUseCase(UOW)
-        saved_income = use_case.execute(form_data)
+    use_case = CreateIncomeUseCase(UOW)
+    use_case.execute(form_data)
 
 
-        return redirect(url_for('income.income_page'))  
-    except Exception as e:
-        return redirect(url_for('income.income_page', error_message=str(e)))
-
-
-@require_user_session
 @income.route('/api/income/<int:income_id>', methods=['GET'])
+@require_user_session
 def get_income_api(income_id: int):
     user = get_current_user()
     income_record = UOW.incomes.get_by_id_and_user_id(income_id, user.id)
@@ -104,21 +99,28 @@ def get_income_api(income_id: int):
     }), 200
 
 
-@require_user_session
 @income.route('/update_income/<int:income_id>', methods=['POST'])
+@require_user_session
+@redirect_on_action('income.income_page')
 def update_income_route(income_id: int):
     user = get_current_user()
     form_data = request.form.to_dict()
 
-    try:
-        use_case = EditIncomeUseCase(UOW)
-        use_case.execute(income_id, user.id, form_data)
-        return redirect(url_for('income.income_page'))
-    except Exception as e:
-        return redirect(url_for('income.income_page', error_message=str(e)))
-    
+    use_case = EditIncomeUseCase(UOW)
+    use_case.execute(income_id, user.id, form_data)
+
+
+@income.route('/delete_income/<int:income_id>', methods=['POST'])
 @require_user_session
+@redirect_on_action('income.income_page')
+def delete_income_route(income_id: int):
+    user = get_current_user()
+
+    use_case = DeleteIncomeUseCase(UOW)
+    use_case.execute(income_id, user.id)
+    
 @income.route('/income', methods=['GET'])
+@require_user_session
 def income_page():
     user = get_current_user()
     error_message = request.args.get("error_message")

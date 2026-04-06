@@ -5,7 +5,7 @@ Index,Item ID,Title,Layer,Class,Status,WIP,Assignee,Tested,Prerequisites,Code Lo
 4,F-002,Dashboard & Reporting,feature,,Done,,inamonanymous,Not Tested,,,Consider performance tests / caching
 5,F-003,Income management (CRUD),feature,,Done,,inamonanymous,Not Tested,,,Add input validation tests
 6,F-004,Expense management (CRUD),feature,,Done,,inamonanymous,Not Tested,,,Add pagination and edge-case tests
-7,F-005,Debt handling & payments,feature,,Done,,inamonanymous,Not Tested,,,Ensure category creation edge-cases handled
+7,F-005,Debt handling & payments,feature,,Done,,inamonanymous,Not Tested,,,Debt payment flow done; debt list/edit page exists; deletion remains pending
 8,F-006,Categories & lookup,feature,,Done,,inamonanymous,Not Tested,,,Ensure category ownership is enforced
 9,F-007,Saving goals & transactions,feature,,Work in Progress,Yes,inamonanymous,Not Tested,,,Add missing use-cases if any
 10,R-001,app/routes/r_users.py,route,,Done,,inamonanymous,Not Tested,,app/routes/r_users.py,"Auth, dashboard, debt payment"

@@ -22,6 +22,7 @@ class IncomeRepositoryImpl(IncomeRepository):
         db.session.add(orm)
         db.session.flush()
         entity.id = orm.id
+        entity.created_at = orm.created_at
         return entity
 
     def get_by_id(self, income_id: int) -> Optional[DomainIncome]:
@@ -38,6 +39,7 @@ class IncomeRepositoryImpl(IncomeRepository):
             payment_method=orm.payment_method,
             remarks=orm.remarks,
             id=orm.id,
+            created_at=orm.created_at
         )
 
     def get_by_id_and_user_id(self, income_id: int, user_id: int) -> Optional[DomainIncome]:
@@ -54,6 +56,7 @@ class IncomeRepositoryImpl(IncomeRepository):
             payment_method=orm.payment_method,
             remarks=orm.remarks,
             id=orm.id,
+            created_at=orm.created_at
         )
 
     def get_all_by_user_id(self, user_id: int) -> List[DomainIncome]:
@@ -69,6 +72,7 @@ class IncomeRepositoryImpl(IncomeRepository):
                 payment_method=o.payment_method,
                 remarks=o.remarks or "",
                 id=o.id,
+                created_at=o.created_at
             )
             for o in orms
         ]
@@ -95,6 +99,7 @@ class IncomeRepositoryImpl(IncomeRepository):
                 payment_method=o.payment_method,
                 remarks=o.remarks,
                 id=o.id,
+                created_at=o.created_at
             )
             for o in orms
         ]
