@@ -86,15 +86,3 @@ class CategoryRepository(Repository[Category]):
         """
         pass
     
-    @abstractmethod
-    def is_in_use(self, category_id: int) -> bool:
-        """
-        Check if category is used in any transactions.
-        
-        Args:
-            category_id: Category ID
-        
-        Returns:
-            True if used in income/expense records
-        """
-        pass

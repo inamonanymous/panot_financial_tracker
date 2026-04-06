@@ -1,9 +1,4 @@
 """Dashboard Reporting Use Case - Orchestrates dashboard data aggregation using UOW and domain services."""
-from sqlalchemy import func
-from app.model.m_Income import Income
-from app.model.m_Expenses import Expenses
-from app.model.m_SavingTransactions import SavingTransactions
-from app.ext import db
 from app.domain.services.net_worth_calculator import NetWorthCalculator
 
 class DashboardReportingUseCase:

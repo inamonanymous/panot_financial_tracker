@@ -25,7 +25,7 @@ def login():
         email = request.args.get('email') if request.args.get('email') else None
         error_message = request.args.get('error_message') if request.args.get('error_message') else None
         return render_template('public/login.html', email=email, error_message=error_message)
-    
+
     try:
         args = request.form
         user = CheckLoginUseCase(UOW).execute(
@@ -37,7 +37,6 @@ def login():
     except Exception as e:
         return redirect(url_for('users.login', error_message=str(e)))
 
-import datetime
 @users.route('/dashboard')
 @require_user_session
 def dashboard():

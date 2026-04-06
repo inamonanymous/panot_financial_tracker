@@ -13,8 +13,6 @@
                         <th>Amount</th>
                         <th>Expense Date</th>
                         <th>Method</th>
-                        <th>Remarks</th>
-                        <th>Created At</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -26,8 +24,6 @@
                         <th>Amount</th>
                         <th>Expense Date</th>
                         <th>Method</th>
-                        <th>Remarks</th>
-                        <th>Created At</th>
                         <th>Action</th>
                     </tr>
                 </tfoot>
@@ -40,8 +36,6 @@
                             <td>{{ i.amount }}</td>
                             <td>{{ i.expense_date }}</td>
                             <td>{{ i.payment_method }}</td>
-                            <td>{{ i.remarks }}</td>
-                            <td>{{ i.created_at }}</td>
                             <td>
                                 <a
                                     class="link-opacity-50-hover js-edit-expense-btn"
@@ -53,6 +47,11 @@
                                 >
                                     <i class="bi bi-pencil" style="color: cornflowerblue;"></i>
                                 </a>
+                                <form method="POST" action="{{ url_for('expense.delete_expense_route', expense_id=i.id) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-link p-0 border-0" onclick="return confirm('Delete this expense record?');" aria-label="Delete expense">
+                                        <i class="bi bi-trash" style="color: #dc3545;"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     {% endfor %}

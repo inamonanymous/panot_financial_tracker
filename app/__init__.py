@@ -30,12 +30,14 @@ def create_app():
     from app.routes.r_users import users
     from app.routes.r_income import income
     from app.routes.r_expense import expense
+    from app.routes.r_debts import debts
     from flask_migrate import Migrate
     from flask_session import Session
 
     app.register_blueprint(users)
     app.register_blueprint(income)
     app.register_blueprint(expense)
+    app.register_blueprint(debts)
 
     db.init_app(app)
     migrate = Migrate(app, db)

@@ -1,0 +1,63 @@
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">My Expenses</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Lender</th>
+                        <th>Principal</th>
+                        <th>Name</th>
+                        <th>Interest Rate</th>
+                        <th>Start Date</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Created at</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Lender</th>
+                        <th>Principal</th>
+                        <th>Name</th>
+                        <th>Interest Rate</th>
+                        <th>Start Date</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Created at</th>
+                        <th>Action</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for i in all_debts %}
+                        <tr>
+                            <td>{{ i.lender }}</td>
+                            <td>{{ i.principal }}</td>
+                            <td>{{ i.name }}</td>
+                            <td>{{ i.interest_rate }}</td>
+                            <td>{{ i.start_date }}</td>
+                            <td>{{ i.due_date }}</td>
+                            <td>{{ i.status }}</td>
+                            <td>{{ i.created_at }}</td>
+                            <td>
+                                <a
+                                    class="link-opacity-50-hover js-edit-debt-btn"
+                                    href="#"
+                                    data-toggle="modal"
+                                    data-target="#editDebtModal"
+                                    data-debt-api-url="{{ url_for('debts.get_debt_api', debt_id=i.id) }}"
+                                    data-debt-update-url="{{ url_for('debts.update_debt_route', debt_id=i.id) }}"
+                                >
+                                    <i class="bi bi-pencil" style="color: cornflowerblue;"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
