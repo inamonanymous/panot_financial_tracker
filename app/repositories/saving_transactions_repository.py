@@ -30,6 +30,10 @@ class SavingTransactionsRepository(ABC):
         pass
 
     @abstractmethod
+    def get_all_by_goal_id(self, goal_id: int) -> List[object]:
+        pass
+
+    @abstractmethod
     def update(self, entity) -> object:
         pass
 

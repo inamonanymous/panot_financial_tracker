@@ -661,6 +661,9 @@ class SavingGoals(db.Model):
   - Create expense + saving transaction records for deposits
   - Dynamic current amount calculation from transaction history
   - Auto-generated \"Saving Goal Payment to {goal name}\" categories
+  - **NEW:** Saving goal details page with progress tracking and payment history
+  - **NEW:** Saving goal payment modal for adding deposits
+  - **NEW:** Enhanced saving goals table with progress bars and status indicators
   - Support for multiple deposits per goal
 
 - **Category Management**

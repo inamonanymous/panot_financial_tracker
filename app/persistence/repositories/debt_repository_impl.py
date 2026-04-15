@@ -29,7 +29,7 @@ class DebtRepositoryImpl(DebtRepository):
         orm = DebtORM.query.filter_by(id=debt_id).first()
         if orm is None:
             return None
-        return DomainDebt(
+        debt = DomainDebt(
             user_id=orm.user_id,
             lender=orm.lender,
             principal=orm.principal,
@@ -40,12 +40,14 @@ class DebtRepositoryImpl(DebtRepository):
             status=orm.status,
             id=orm.id,
         )
+        debt.current_amount = self.calculate_paid_amount(debt_id)
+        return debt
 
     def get_by_id_and_user_id(self, debt_id: int, user_id: int) -> Optional[DomainDebt]:
         orm = DebtORM.query.filter_by(id=debt_id, user_id=user_id).first()
         if orm is None:
             return None
-        return DomainDebt(
+        debt = DomainDebt(
             user_id=orm.user_id,
             lender=orm.lender,
             principal=orm.principal,
@@ -56,11 +58,14 @@ class DebtRepositoryImpl(DebtRepository):
             status=orm.status,
             id=orm.id,
         )
+        debt.current_amount = self.calculate_paid_amount(debt_id)
+        return debt
 
     def get_all_by_user_id(self, user_id: int) -> List[DomainDebt]:
         orms = DebtORM.query.filter_by(user_id=user_id).all()
-        return [
-            DomainDebt(
+        debts = []
+        for o in orms:
+            debt = DomainDebt(
                 user_id=o.user_id,
                 lender=o.lender,
                 principal=o.principal,
@@ -72,13 +77,15 @@ class DebtRepositoryImpl(DebtRepository):
                 created_at=o.created_at,
                 id=o.id,
             )
-            for o in orms
-        ]
+            debt.current_amount = self.calculate_paid_amount(o.id)
+            debts.append(debt)
+        return debts
 
     def get_active_by_user_id(self, user_id: int) -> List[DomainDebt]:
         orms = DebtORM.query.filter_by(user_id=user_id, status='active').all()
-        return [
-            DomainDebt(
+        debts = []
+        for o in orms:
+            debt = DomainDebt(
                 user_id=o.user_id,
                 lender=o.lender,
                 principal=o.principal,
@@ -89,8 +96,9 @@ class DebtRepositoryImpl(DebtRepository):
                 status=o.status,
                 id=o.id,
             )
-            for o in orms
-        ]
+            debt.current_amount = self.calculate_paid_amount(o.id)
+            debts.append(debt)
+        return debts
 
     def calculate_total_principal_by_user_id(self, user_id: int) -> float:
         total = (
@@ -101,6 +109,15 @@ class DebtRepositoryImpl(DebtRepository):
             .scalar()
         )
         return float(total)
+
+    def calculate_current_amount(self, debt_id: int) -> float:
+        return self.calculate_paid_amount(debt_id)
+
+    def calculate_progress_percentage(self, debt_id: int, principal: float) -> float:
+        current_amount = self.calculate_current_amount(debt_id)
+        if principal <= 0:
+            return 100.0
+        return min(100.0, (current_amount / principal) * 100)
 
     def update(self, entity: DomainDebt) -> DomainDebt:
         orm = DebtORM.query.filter_by(id=entity.id).first()
@@ -142,3 +159,33 @@ class DebtRepositoryImpl(DebtRepository):
             )
             for o in orms
         ]
+
+    def calculate_paid_amount(self, debt_id: int) -> float:
+        """Calculate paid amount for a debt (deposits - withdrawals)."""
+        from app.model.m_Income import Income
+        from app.model.m_Expenses import Expenses
+        from app.model.m_DebtPayments import DebtPayments
+        
+        # Sum deposits from debt payments, using whichever related payment record exists.
+        deposits = (
+            db.session.query(func.coalesce(func.sum(func.coalesce(Expenses.amount, Income.amount)), 0))
+            .select_from(DebtPayments)
+            .outerjoin(Expenses, DebtPayments.expense_id == Expenses.id)
+            .outerjoin(Income, DebtPayments.income_id == Income.id)
+            .filter(DebtPayments.debt_id == debt_id)
+            .filter(DebtPayments.pymt_type == "deposit")
+            .scalar()
+        )
+        
+        # Sum withdrawals from debt payments, using whichever related payment record exists.
+        withdrawals = (
+            db.session.query(func.coalesce(func.sum(func.coalesce(Expenses.amount, Income.amount)), 0))
+            .select_from(DebtPayments)
+            .outerjoin(Expenses, DebtPayments.expense_id == Expenses.id)
+            .outerjoin(Income, DebtPayments.income_id == Income.id)
+            .filter(DebtPayments.debt_id == debt_id)
+            .filter(DebtPayments.pymt_type == "withdraw")
+            .scalar()
+        )
+        
+        return float(deposits - withdrawals)

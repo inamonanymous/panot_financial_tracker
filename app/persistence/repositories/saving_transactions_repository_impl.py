@@ -28,6 +28,9 @@ class SavingTransactionsRepositoryImpl(SavingTransactionsRepository):
     def get_all_by_user_and_type(self, user_id: int, txt_type: str) -> List[SavingTransactionsORM]:
         return SavingTransactionsORM.query.filter_by(user_id=user_id, txt_type=txt_type).all()
 
+    def get_all_by_goal_id(self, goal_id: int) -> List[SavingTransactionsORM]:
+        return SavingTransactionsORM.query.filter_by(goal_id=goal_id).all()
+
     def update(self, entity: SavingTransactionsORM) -> SavingTransactionsORM:
         db.session.flush()
         return entity

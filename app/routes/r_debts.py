@@ -70,6 +70,9 @@ def get_debt_api(debt_id: int):
         "name": debt_record.name,
         "lender": debt_record.lender,
         "principal": debt_record.principal,
+        "current_amount": debt_record.current_amount,
+        "remaining_amount": debt_record.get_remaining_amount(),
+        "progress_percentage": debt_record.get_progress_percentage(),
         "interest_rate": debt_record.interest_rate,
         "start_date": debt_record.start_date.isoformat() if debt_record.start_date else None,
         "due_date": debt_record.due_date.isoformat() if debt_record.due_date else None,
@@ -79,13 +82,21 @@ def get_debt_api(debt_id: int):
 
 @debts.route('/update_debt/<int:debt_id>', methods=['POST'])
 @require_user_session
-@redirect_on_action('debts.debts_page')
 def update_debt_route(debt_id: int):
     user = get_current_user()
     form_data = request.form.to_dict()
+    next_path = form_data.get('next') or request.args.get('next')
 
     use_case = EditDebtUseCase(UOW)
-    use_case.execute(debt_id, user.id, form_data)
+    try:
+        use_case.execute(debt_id, user.id, form_data)
+        if next_path:
+            return redirect(next_path)
+        return redirect(url_for('debts.debts_page'))
+    except Exception as e:
+        if next_path:
+            return redirect(f"{next_path}?error_message={str(e)}")
+        return redirect(url_for('debts.debts_page', error_message=str(e)))
 
 
 @debts.route('/add_debt_payment/<int:debt_id>', methods=['POST'])

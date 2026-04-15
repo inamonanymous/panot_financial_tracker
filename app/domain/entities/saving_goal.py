@@ -62,6 +62,7 @@ class SavingGoal:
     def get_progress_percentage(self) -> float:
         """Calculate progress towards goal (0-100%)"""
         if self.target_amount <= 0:
+            print("Warning: Target amount is zero or negative, cannot calculate progress percentage.")
             return 0.0
         return min(100.0, (self.current_amount / self.target_amount) * 100)
     

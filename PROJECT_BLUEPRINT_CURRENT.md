@@ -1,6 +1,6 @@
 # Finance Project Blueprint (Current + Planned)
 
-Last Updated: 2026-04-15
+Last Updated: 2026-04-16
 Project Type: Web App (Flask + SQLAlchemy + Jinja + MySQL)
 Architecture: Route → Use Case → Policy/Domain Service → Repository → ORM Model
 
@@ -21,6 +21,9 @@ Build a personal finance tracker where a user can manage income, expenses, categ
   - `AddSavingGoalPaymentUseCase` orchestration
   - Dynamic current amount calculation from transaction history
   - Automatic category generation for saving goal deposits
+- **Saving goal progress/current amount calculation in persistence layer** (repository/UOW)
+- **Debt current amount/progress calculation in persistence layer** (repository/UOW)
+- **Fixed saving goal payment flow** to set expense_id after expense save
 
 ### In Scope (Planned / Not Fully Wired)
 - Transaction deletion (income/expense)
@@ -155,7 +158,8 @@ Build a personal finance tracker where a user can manage income, expenses, categ
 - `GET /api/expense/categories/<category_id>`
 
 ### Saving Goals
-- `GET /saving_goals` (List - route exists, UI pending)
+- `GET /saving_goals` (List - route exists, UI enhanced)
+- `GET /saving_goal_details/<goal_id>` (Details page with progress and history)
 - `POST /add_saving_goal_payment/<goal_id>` (Implemented)
 - `POST /insert_saving_goal` (Planned)
 - `POST /update_saving_goal/<goal_id>` (Planned)
@@ -172,7 +176,7 @@ Build a personal finance tracker where a user can manage income, expenses, categ
 - Create `CreateSavingGoalUseCase` and route
 - Create `EditSavingGoalUseCase` and route
 - Create `DeleteSavingGoalUseCase` with safety checks
-- Build saving goals list page with progress indicators and payment button
+- Build saving goals list page with progress indicators and payment button (Enhanced)
 - Test multi-transaction tracking per goal
 
 ### Iteration 2 (CRUD Completeness)

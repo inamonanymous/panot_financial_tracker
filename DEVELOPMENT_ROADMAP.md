@@ -1,29 +1,15 @@
 # Finance Project — Development Roadmap & Task List
 
-**Last Updated:** April 15, 2026
+**Last Updated:** April 16, 2026
 
 ---
 
 ## Current Snapshot
 
-### ✅ Completed (Implemented and Working)
-- [x] User registration, login, logout
-- [x] Dashboard totals reporting
-- [x] Income create + list + edit
-- [x] Expense create + list + edit
-- [x] Category create + edit for income and expense contexts
-- [x] Shared category card/modal UI reused across income and expense pages
-- [x] Debt payment flow (creates expense + debt payment record)
-- [x] Debt list + edit page + use case
-- [x] `name` support added to income and expense models
-- [x] Validation now requires both:
-  - Income: `name` and `source`
-  - Expense: `name` and `payee`
-- [x] **Saving goal payment flow** (creates expense + saving transaction)
-- [x] **Dynamic saving goal current amount calculation** from transaction history
-- [x] **Saving transaction validation policies**
-- [x] **AddSavingGoalPaymentUseCase orchestration**
-- [x] **Route for `/add_saving_goal_payment/<goal_id>` (POST)**
+### ✅ Recently Completed (Implemented and Working)
+- [x] Saving goal progress/current amount calculation moved to persistence layer (repository/UOW)
+- [x] Debt current amount/progress calculation moved to persistence layer (repository/UOW)
+- [x] Fixed saving goal payment expense ID bug (expense_id now set after expense save)
 
 ### 🔄 In Progress
 - [ ] Cleanup/refactor pass for duplicated table/modal JS (optional quality task)

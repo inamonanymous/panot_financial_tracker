@@ -69,3 +69,30 @@ class DebtRepository(Repository[Debt]):
             Total principal amount
         """
         pass
+
+    @abstractmethod
+    def calculate_current_amount(self, debt_id: int) -> float:
+        """
+        Calculate the current amount paid against a debt.
+        
+        Args:
+            debt_id: Debt ID
+        
+        Returns:
+            Current paid amount
+        """
+        pass
+
+    @abstractmethod
+    def calculate_progress_percentage(self, debt_id: int, principal: float) -> float:
+        """
+        Calculate debt repayment progress percentage.
+        
+        Args:
+            debt_id: Debt ID
+            principal: Principal amount
+        
+        Returns:
+            Progress percentage (0-100)
+        """
+        pass
