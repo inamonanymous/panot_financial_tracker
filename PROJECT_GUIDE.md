@@ -1,6 +1,6 @@
 # Finance Project — Complete Project Guide
 
-**Last Updated:** February 18, 2026  
+**Last Updated:** April 15, 2026  
 **Author:** Stephen Joaquin Aguilar  
 **Status:** Active Development
 
@@ -656,6 +656,13 @@ class SavingGoals(db.Model):
 - **Debt Management**
   - Debt payment recording (creates expense)
 
+- **Saving Goals**
+  - Save goal payment flow (`AddSavingGoalPaymentUseCase`)
+  - Create expense + saving transaction records for deposits
+  - Dynamic current amount calculation from transaction history
+  - Auto-generated \"Saving Goal Payment to {goal name}\" categories
+  - Support for multiple deposits per goal
+
 - **Category Management**
     - Category create/edit in both income and expense pages
     - Category description support
@@ -669,14 +676,17 @@ class SavingGoals(db.Model):
 
 ### ⏳ Planned
 
+- **Saving Goals CRUD** (payment infrastructure exists)
+    - Create saving goal
+    - Edit saving goal
+    - Delete saving goal with safety checks
+    - List saving goals page with progress indicators
+
 - **Transaction Deletion Flows**
     - Income/expense delete use cases + routes + UI confirm modals
 
 - **Debt CRUD Module**
     - Debt create/list/edit/delete pages and use cases
-
-- **Savings Module**
-    - Savings goal and saving transaction routes/pages
 
 - **Analytics & Reports**
   - Monthly/yearly summaries
@@ -1104,7 +1114,7 @@ except Exception as e:
 
 **Project Owner:** Stephen Joaquin Aguilar  
 **Status:** Active Development  
-**Last Updated:** February 2026
+**Last Updated:** April 15, 2026
 
 For questions or issues, refer to this guide or check the repository structure and docstrings in the code.
 

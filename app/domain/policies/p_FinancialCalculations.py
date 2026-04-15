@@ -65,3 +65,7 @@ class FinancialCalculationsPolicy(BasePolicy):
     def is_debt_present(self, debt: object):
         if debt is None:
             raise PolicyError("Cannot find Debt Data")
+    
+    def is_saving_goal_present(self, goal: object):
+        if goal is None:
+            raise PolicyError("Cannot find Saving Goal Data")

@@ -2,7 +2,7 @@
 
 Status: Mandatory first document before planning, coding, refactoring, or design changes.
 Owner: Product + Engineering
-Last Updated: 2026-02-18
+Last Updated: 2026-04-15
 
 ## 1) Why This Exists
 This is the single source of truth for how projects start and execute.

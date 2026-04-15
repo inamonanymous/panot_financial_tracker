@@ -1,6 +1,6 @@
 # Finance Project Blueprint (Current + Planned)
 
-Last Updated: 2026-02-18
+Last Updated: 2026-04-15
 Project Type: Web App (Flask + SQLAlchemy + Jinja + MySQL)
 Architecture: Route → Use Case → Policy/Domain Service → Repository → ORM Model
 
@@ -17,12 +17,16 @@ Build a personal finance tracker where a user can manage income, expenses, categ
 - Category description field support
 - Debt payment flow (creates expense + debt payment record)
 - Debt page + edit flow (partial debt CRUD)
+- **Saving goal payment flow** (creates expense + saving transaction)
+  - `AddSavingGoalPaymentUseCase` orchestration
+  - Dynamic current amount calculation from transaction history
+  - Automatic category generation for saving goal deposits
 
 ### In Scope (Planned / Not Fully Wired)
 - Transaction deletion (income/expense)
 - Category delete with reference protection
 - Full debt CRUD module
-- Savings goals + saving transactions pages/routes
+- Savings goals CRUD pages/routes (payment flow implemented)
 - Reporting & analytics dashboards
 - Charts (trend/composition/payoff)
 - Export (CSV/PDF)
@@ -47,7 +51,8 @@ Build a personal finance tracker where a user can manage income, expenses, categ
 ### Planned Journeys
 - Delete transaction safely
 - Manage debt records fully
-- Set/track savings goals
+- Set/track savings goals (payment flow exists, CRUD UI needed)
+- Record and monitor multiple deposits to a single saving goal
 - View monthly/yearly analytics
 
 ## 4) Functional Requirements (Module View)
@@ -80,10 +85,12 @@ Build a personal finance tracker where a user can manage income, expenses, categ
 - FR-DB2: List and edit owned debt records
 - FR-DB3 (Planned): Delete debt record
 
-### Savings / Reporting (Planned)
-- FR-S1: Savings goal CRUD
-- FR-S2: Savings transaction flow
-- FR-R1: Monthly/yearly reports and charts
+### Savings / Reporting
+- FR-S1: Add saving goal payment (Implemented)
+- FR-S2: Calculate saving goal current amount from transaction history (Implemented)
+- FR-S3 (Planned): Savings goal CRUD pages/routes
+- FR-S4 (Planned): View savings goal progress and timeline
+- FR-R1 (Planned): Monthly/yearly reports and charts
 
 ## 5) Non-Functional Requirements
 - Security: input validation by policy layer, hashed passwords, session-guarded routes
@@ -147,6 +154,13 @@ Build a personal finance tracker where a user can manage income, expenses, categ
 - `POST /update_expense_category/<category_id>`
 - `GET /api/expense/categories/<category_id>`
 
+### Saving Goals
+- `GET /saving_goals` (List - route exists, UI pending)
+- `POST /add_saving_goal_payment/<goal_id>` (Implemented)
+- `POST /insert_saving_goal` (Planned)
+- `POST /update_saving_goal/<goal_id>` (Planned)
+- `POST /delete_saving_goal/<goal_id>` (Planned)
+
 ## 9) Current Gaps / Risks
 - No automated test suite yet
 - Some planned modules exist in domain/model but not exposed in routes/UI
@@ -154,21 +168,17 @@ Build a personal finance tracker where a user can manage income, expenses, categ
 - Documentation is strong, but execution consistency needs tighter change control
 
 ## 10) Delivery Plan (Recommended Next Iterations)
-### Iteration 1 (Stabilization)
-- Fix auth/session behavior and add focused regression checks
-- Add smoke tests for login + guarded routes
-- Add consistent error handling pattern
+### Iteration 1 (Savings Goals Completion) ← NEXT
+- Create `CreateSavingGoalUseCase` and route
+- Create `EditSavingGoalUseCase` and route
+- Create `DeleteSavingGoalUseCase` with safety checks
+- Build saving goals list page with progress indicators and payment button
+- Test multi-transaction tracking per goal
 
 ### Iteration 2 (CRUD Completeness)
 - Income/expense delete flows
 - Category delete with dependency protection
 - Debt CRUD pages/routes/use-cases
-
-### Iteration 3 (Savings)
-- Expose savings goals + transactions pages/routes
-- Add progress visuals and validations
-
-### Iteration 4 (Reporting)
 - Monthly/yearly summaries
 - Category and trend charts
 - Export CSV/PDF baseline

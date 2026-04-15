@@ -31,6 +31,7 @@ def create_app():
     from app.routes.r_income import income
     from app.routes.r_expense import expense
     from app.routes.r_debts import debts
+    from app.routes.r_saving_goals import saving_goals
     from flask_migrate import Migrate
     from flask_session import Session
 
@@ -38,6 +39,7 @@ def create_app():
     app.register_blueprint(income)
     app.register_blueprint(expense)
     app.register_blueprint(debts)
+    app.register_blueprint(saving_goals)
 
     db.init_app(app)
     migrate = Migrate(app, db)

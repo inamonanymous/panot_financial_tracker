@@ -11,6 +11,7 @@ class EditDebtUseCase:
         clean_data = self.finance_policy.validate_debt_editing(debt_data, debt)
 
         debt.update(
+            name=clean_data.get("name"),
             lender=clean_data.get("lender"),
             principal=clean_data.get("principal"),
             interest_rate=clean_data.get("interest_rate"),

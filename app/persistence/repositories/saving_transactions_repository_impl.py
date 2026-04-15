@@ -57,3 +57,34 @@ class SavingTransactionsRepositoryImpl(SavingTransactionsRepository):
             .scalar()
         )
         return float(total)
+
+    def calculate_current_amount_by_goal(self, goal_id: int) -> float:
+        """Calculate current amount for a saving goal (deposits - withdrawals)."""
+        from app.model.m_Income import Income
+        from app.model.m_Expenses import Expenses
+        
+        # Sum deposits from income
+        deposits = (
+            db.session.query(func.coalesce(func.sum(Income.amount), 0))
+            .join(
+                SavingTransactionsORM,
+                SavingTransactionsORM.income_id == Income.id
+            )
+            .filter(SavingTransactionsORM.goal_id == goal_id)
+            .filter(SavingTransactionsORM.txt_type == "deposit")
+            .scalar()
+        )
+        
+        # Sum withdrawals from expenses
+        withdrawals = (
+            db.session.query(func.coalesce(func.sum(Expenses.amount), 0))
+            .join(
+                SavingTransactionsORM,
+                SavingTransactionsORM.expense_id == Expenses.id
+            )
+            .filter(SavingTransactionsORM.goal_id == goal_id)
+            .filter(SavingTransactionsORM.txt_type == "withdraw")
+            .scalar()
+        )
+        
+        return float(deposits - withdrawals)

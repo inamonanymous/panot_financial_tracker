@@ -116,6 +116,22 @@ class TransactionPolicy(BasePolicy):
         clean["pymt_type"] = self.validate_payment_type(clean["pymt_type"])
         return clean
 
+    # SAVING TRANSACTIONS
+    def validate_insert_saving_transaction(self, data: dict) -> dict:
+        clean = self.create_resource(
+            data,
+            required=["user_id", "goal_id"],
+            allowed=["user_id", "goal_id", "income_id", "expense_id", "txt_type"]
+        )
+        clean["user_id"] = self.validate_id_values(clean["user_id"], "User ID")
+        clean["goal_id"] = self.validate_id_values(clean["goal_id"], "Goal ID")
+        clean["txt_type"] = self.validate_payment_type(clean.get("txt_type", "deposit"))
+        if "income_id" in clean:
+            clean["income_id"] = self.validate_id_values(clean["income_id"], "Income ID")
+        if "expense_id" in clean:
+            clean["expense_id"] = self.validate_id_values(clean["expense_id"], "Expense ID")
+        return clean
+
     def validate_payment_method(self, payment_method) -> str:
             payment_method = self.validate_string(payment_method, "Payment Method", min_len=4)
             if payment_method not in ("cash", "gcash", "bank", "card", "other"):

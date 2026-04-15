@@ -1,6 +1,5 @@
 """Income Domain Entity"""
 from datetime import date, datetime
-from app.domain.exceptions import InvalidIncomeError
 
 
 class Income:
@@ -39,95 +38,19 @@ class Income:
             remarks: Optional notes
             id: Income ID (optional, assigned by database)
             created_at: When the record was created (optional, assigned by database)
-        
-        Raises:
-            InvalidIncomeError: If any field violates domain rules
         """
         self.id = id
-        self.user_id = self._validate_user_id(user_id)
-        self.category_id = self._validate_category_id(category_id)
+        self.user_id = user_id
+        self.category_id = category_id
         resolved_name = name if name is not None else source
         resolved_source = source if source is not None else name
-        self.name = self._validate_name(resolved_name)
-        self.source = self._validate_source(resolved_source)
-        self.amount = self._validate_amount(amount)
-        self.received_date = self._validate_received_date(received_date)
-        self.payment_method = self._validate_payment_method(payment_method)
+        self.name = resolved_name
+        self.source = resolved_source
+        self.amount = amount
+        self.received_date = received_date
+        self.payment_method = payment_method
         self.remarks = remarks.strip() if isinstance(remarks, str) else ""
         self.created_at = created_at
-    
-    @staticmethod
-    def _validate_user_id(user_id: int) -> int:
-        if not isinstance(user_id, int) or user_id <= 0:
-            print(type(user_id))
-            raise InvalidIncomeError("user_id must be a positive integer")
-        return user_id
-    
-    @staticmethod
-    def _validate_category_id(category_id: int) -> int:
-        if not isinstance(category_id, int) or category_id <= 0:
-            raise InvalidIncomeError("category_id must be a positive integer")
-        return category_id
-    
-    @staticmethod
-    def _validate_name(name: str) -> str:
-        if not isinstance(name, str):
-            raise InvalidIncomeError("name must be a string")
-        
-        name = name.strip()
-        
-        if len(name) < 1:
-            raise InvalidIncomeError("name cannot be empty")
-        
-        return name
-
-    @staticmethod
-    def _validate_source(source: str) -> str:
-        if not isinstance(source, str):
-            raise InvalidIncomeError("source must be a string")
-
-        source = source.strip()
-
-        if len(source) < 1:
-            raise InvalidIncomeError("source cannot be empty")
-
-        return source
-    
-    @staticmethod
-    def _validate_amount(amount: float) -> float:
-        try:
-            amount = float(amount)
-        except (TypeError, ValueError):
-            raise InvalidIncomeError("amount must be a number")
-        
-        if amount <= 0:
-            raise InvalidIncomeError("amount must be greater than zero")
-        
-        return amount
-    
-    @staticmethod
-    def _validate_received_date(received_date: date) -> date:
-        if not isinstance(received_date, date):
-            raise InvalidIncomeError("received_date must be a date object")
-        
-        if received_date > date.today():
-            raise InvalidIncomeError("received_date cannot be in the future")
-        
-        return received_date
-    
-    @staticmethod
-    def _validate_payment_method(method: str) -> str:
-        if not isinstance(method, str):
-            raise InvalidIncomeError("payment_method must be a string")
-        
-        method = method.strip().lower()
-        
-        if method not in Income.VALID_PAYMENT_METHODS:
-            raise InvalidIncomeError(
-                f"payment_method must be one of {Income.VALID_PAYMENT_METHODS}, got '{method}'"
-            )
-        
-        return method
     
     def update(
         self,
@@ -137,18 +60,18 @@ class Income:
         payment_method: str = None,
         remarks: str = None
     ) -> None:
-        """Update income details with validation"""
+        """Update income details"""
         if name is not None:
-            self.name = self._validate_name(name)
+            self.name = name
 
         if source is not None:
-            self.source = self._validate_source(source)
+            self.source = source
         
         if amount is not None:
-            self.amount = self._validate_amount(amount)
+            self.amount = amount
         
         if payment_method is not None:
-            self.payment_method = self._validate_payment_method(payment_method)
+            self.payment_method = payment_method
         
         if remarks is not None:
             self.remarks = remarks.strip() if isinstance(remarks, str) else ""

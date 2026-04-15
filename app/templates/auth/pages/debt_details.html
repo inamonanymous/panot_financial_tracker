@@ -1,0 +1,239 @@
+{% extends 'auth/layout.html' %}
+{% block body %}
+    <!-- Sidebar -->
+    {% include 'auth/partials/sidebar.html' %}
+    <!-- End of Sidebar -->
+
+    <!-- Main Content -->
+    <div id="content">
+        <!-- Topbar -->
+        {% include 'auth/partials/topbar.html' %}
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+            <!-- Modal -->
+            {% include 'auth/modals/add_debt_payment.html' %}
+            <!-- Page Heading and Back Button -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800">Debt Details</h1>
+                    <p class="text-muted small">{{ debt.name }} - {{ debt.lender }}</p>
+                </div>
+                <a href="{{ url_for('debts.debts_page') }}" class="btn btn-secondary btn-sm">
+                    <i class="bi bi-arrow-left"></i> Back to Debts
+                </a>
+            </div>
+
+            {% if error_message %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i> {{ error_message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+
+            <!-- Main Row -->
+            <div class="row">
+                <!-- Left Column - Debt Details -->
+                <div class="col-lg-8">
+                    <!-- Debt Information Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card shadow mb-3">
+                                <div class="card-body">
+                                    <div class="text-muted small font-weight-bold text-uppercase mb-2">Principal Amount</div>
+                                    <div class="h3 text-primary mb-0">₱{{ "%.2f"|format(debt.principal) }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card shadow mb-3">
+                                <div class="card-body">
+                                    <div class="text-muted small font-weight-bold text-uppercase mb-2">Interest Rate</div>
+                                    <div class="h3 mb-0">{{ "%.2f"|format(debt.interest_rate) }}%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card shadow mb-3">
+                                <div class="card-body">
+                                    <div class="text-muted small font-weight-bold text-uppercase mb-2">Status</div>
+                                    <div>
+                                        {% if debt.status == 'active' %}
+                                            <span class="badge badge-success">Active</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">Closed</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card shadow mb-3">
+                                <div class="card-body">
+                                    <div class="text-muted small font-weight-bold text-uppercase mb-2">Created On</div>
+                                    <div class="small mb-0">{{ debt.created_at.strftime('%b %d, %Y') if debt.created_at else 'N/A' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Debt Detailed Information -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Debt Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>Lender:</strong> {{ debt.lender }}</p>
+                                    <p class="mb-2"><strong>Debt Name:</strong> {{ debt.name }}</p>
+                                    <p class="mb-0"><strong>Start Date:</strong> {{ debt.start_date.strftime('%b %d, %Y') if debt.start_date else 'N/A' }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>Due Date:</strong> {{ debt.due_date.strftime('%b %d, %Y') if debt.due_date else 'N/A' }}</p>
+                                    <p class="mb-0"><strong>Principal:</strong> ₱{{ "%.2f"|format(debt.principal) }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payments History -->
+                    <div class="card shadow">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-primary">Payment History ({{ payments|length }} payments)</h6>
+                            <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#addDebtPaymentModal">
+                                <i class="bi bi-plus-circle"></i> Add Payment
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            {% if payments %}
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Payment Type</th>
+                                                <th>Amount</th>
+                                                <th>Date</th>
+                                                <th>Related To</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for payment in payments %}
+                                                <tr>
+                                                    <td>
+                                                        {% if payment.pymt_type == 'deposit' %}
+                                                            <span class="badge badge-success">Deposit</span>
+                                                        {% else %}
+                                                            <span class="badge badge-danger">Withdraw</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if payment.income %}
+                                                            ₱{{ "%.2f"|format(payment.income.amount) }}
+                                                        {% elif payment.expenses %}
+                                                            ₱{{ "%.2f"|format(payment.expenses.amount) }}
+                                                        {% else %}
+                                                            N/A
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if payment.income %}
+                                                            {{ payment.income.received_date.strftime('%b %d, %Y') if payment.income.received_date else 'N/A' }}
+                                                        {% elif payment.expenses %}
+                                                            {{ payment.expenses.expense_date.strftime('%b %d, %Y') if payment.expenses.expense_date else 'N/A' }}
+                                                        {% else %}
+                                                            N/A
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if payment.income %}
+                                                            <small>Income: {{ payment.income.name or payment.income.source }}</small>
+                                                        {% elif payment.expenses %}
+                                                            <small>Expense: {{ payment.expenses.name or payment.expenses.payee }}</small>
+                                                        {% else %}
+                                                            <small>No relation</small>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info" role="alert">
+                                    <i class="bi bi-info-circle"></i> No payment records found for this debt.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Summary -->
+                <div class="col-lg-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 bg-primary">
+                            <h6 class="m-0 font-weight-bold text-white">Debt Summary</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="small text-muted">Principal Amount</div>
+                                <div class="h5 text-primary mb-0">₱{{ "%.2f"|format(debt.principal) }}</div>
+                            </div>
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="small text-muted">Interest Rate</div>
+                                <div class="h5 mb-0">{{ "%.2f"|format(debt.interest_rate) }}%</div>
+                            </div>
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="small text-muted">Status</div>
+                                <div class="mb-0">
+                                    {% if debt.status == 'active' %}
+                                        <span class="badge badge-success">Active</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary">Closed</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="small text-muted">Total Payments</div>
+                                <div class="h5 mb-0">{{ payments|length }}</div>
+                            </div>
+                            <div>
+                                <div class="small text-muted">Created Date</div>
+                                <div class="small mb-0">{{ debt.created_at.strftime('%b %d, %Y') if debt.created_at else 'N/A' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.container-fluid -->
+    </div>
+    <!-- End of Main Content -->
+
+    <script src="{{ url_for('static', filename='js/pages/edit-form-helper.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/pages/debts-page.js') }}"></script>
+
+    <script>
+        // Set default date for payment modal
+        document.addEventListener("DOMContentLoaded", function() {
+            // Set today's date as default for payment date
+            const today = new Date().toISOString().split('T')[0];
+            const paymentDateInput = document.getElementById('input_payment_date');
+            if (paymentDateInput) {
+                paymentDateInput.value = today;
+            }
+
+            // Reset form when modal is closed
+            $('#addDebtPaymentModal').on('hidden.bs.modal', function() {
+                $(this).find('form')[0].reset();
+                if (paymentDateInput) {
+                    paymentDateInput.value = today;
+                }
+            });
+        });
+    </script>
+{% endblock %}
+

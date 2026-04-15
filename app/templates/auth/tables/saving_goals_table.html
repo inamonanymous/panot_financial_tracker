@@ -1,0 +1,44 @@
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">My Saving Goals</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Target Amount</th>
+                        <th>Target Date</th>
+                        <th>Remarks</th>
+                        <th>Created at</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Name</th>
+                        <th>Target Amount</th>
+                        <th>Target Date</th>
+                        <th>Remarks</th>
+                        <th>Created at</th>
+                        <th>Action</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for goal in all_saving_goals %}
+                        <tr>
+                            <td>{{ goal.name }}</td>
+                            <td>${{ "%.2f"|format(goal.target_amount) }}</td>
+                            <td>{{ goal.target_date }}</td>
+                            <td>{{ goal.remarks }}</td>
+                            <td>{{ goal.created_at }}</td>
+                            <td>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
