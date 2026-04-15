@@ -1,5 +1,6 @@
 """Debt Domain Entity"""
 from datetime import date
+from typing import Optional
 from app.domain.exceptions import InvalidDebtError
 
 
@@ -26,6 +27,8 @@ class Debt:
         name: str = None,
         status: str = "active",
         created_at: date = None,
+        paid_amount: float = 0.0,
+        current_amount: Optional[float] = None,
         id: int = None
     ):
         """
@@ -55,6 +58,16 @@ class Debt:
         self.name = name
         self.status = status
         self.created_at = created_at
+        self.paid_amount = paid_amount
+        self.current_amount = paid_amount if current_amount is None else current_amount
+
+    @property
+    def current_amount(self) -> float:
+        return self.paid_amount
+
+    @current_amount.setter
+    def current_amount(self, value: float):
+        self.paid_amount = value
 
     def update(
         self,
@@ -81,3 +94,17 @@ class Debt:
             self.due_date = due_date
         if status is not None:
             self.status = status
+
+    def get_remaining_amount(self) -> float:
+        """Calculate remaining amount to pay off the debt."""
+        return max(0, self.principal - self.current_amount)
+
+    def get_progress_percentage(self) -> float:
+        """Calculate progress percentage towards paying off the debt."""
+        if self.principal <= 0:
+            return 100.0
+        return min(100.0, (self.current_amount / self.principal) * 100)
+
+    def is_paid_off(self) -> bool:
+        """Check if the debt is fully paid off."""
+        return self.paid_amount >= self.principal

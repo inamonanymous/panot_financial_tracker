@@ -23,6 +23,14 @@ class DebtPaymentsRepositoryImpl:
     def get_all_by_user(self, user_id: int) -> List[DebtPayments]:
         return DebtPayments.query.filter_by(user_id=user_id).all()
 
+    def get_by_debt_id(self, debt_id: int) -> List[DebtPayments]:
+        """Get all payments for a specific debt."""
+        return DebtPayments.query.filter_by(debt_id=debt_id).all()
+
+    def get_by_debt_id_and_user_id(self, debt_id: int, user_id: int) -> List[DebtPayments]:
+        """Get all payments for a specific debt, filtered by user."""
+        return DebtPayments.query.filter_by(debt_id=debt_id, user_id=user_id).all()
+
     def update(self, entity: DebtPayments) -> DebtPayments:
         db.session.flush()
         return entity

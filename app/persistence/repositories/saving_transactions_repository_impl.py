@@ -28,6 +28,9 @@ class SavingTransactionsRepositoryImpl(SavingTransactionsRepository):
     def get_all_by_user_and_type(self, user_id: int, txt_type: str) -> List[SavingTransactionsORM]:
         return SavingTransactionsORM.query.filter_by(user_id=user_id, txt_type=txt_type).all()
 
+    def get_all_by_goal_id(self, goal_id: int) -> List[SavingTransactionsORM]:
+        return SavingTransactionsORM.query.filter_by(goal_id=goal_id).all()
+
     def update(self, entity: SavingTransactionsORM) -> SavingTransactionsORM:
         db.session.flush()
         return entity
@@ -57,3 +60,34 @@ class SavingTransactionsRepositoryImpl(SavingTransactionsRepository):
             .scalar()
         )
         return float(total)
+
+    def calculate_current_amount_by_goal(self, goal_id: int) -> float:
+        """Calculate current amount for a saving goal (deposits - withdrawals)."""
+        from app.model.m_Income import Income
+        from app.model.m_Expenses import Expenses
+        
+        # Sum deposits from income
+        deposits = (
+            db.session.query(func.coalesce(func.sum(Income.amount), 0))
+            .join(
+                SavingTransactionsORM,
+                SavingTransactionsORM.income_id == Income.id
+            )
+            .filter(SavingTransactionsORM.goal_id == goal_id)
+            .filter(SavingTransactionsORM.txt_type == "deposit")
+            .scalar()
+        )
+        
+        # Sum withdrawals from expenses
+        withdrawals = (
+            db.session.query(func.coalesce(func.sum(Expenses.amount), 0))
+            .join(
+                SavingTransactionsORM,
+                SavingTransactionsORM.expense_id == Expenses.id
+            )
+            .filter(SavingTransactionsORM.goal_id == goal_id)
+            .filter(SavingTransactionsORM.txt_type == "withdraw")
+            .scalar()
+        )
+        
+        return float(deposits - withdrawals)

@@ -11,7 +11,7 @@ Then use supporting blueprints:
 - `PROJECT_BLUEPRINT_CURRENT.md`
 - `ARCHITECTURE_RULES.md` ← architecture contract used for refactor steps
 
-**Status (February 18, 2026):** Active development. Core auth, dashboard, income, expense, debt payment, debt listing/edit, and category management are implemented with create + edit flows.
+**Status (April 16, 2026):** Active development. Core auth, dashboard, income, expense, debt payment, debt listing/edit, category management, and savings goal payment flows are implemented with create + edit flows. Saving goal and debt progress calculations now handled in persistence layer.
 
 ## What Works Right Now
 
@@ -23,17 +23,40 @@ Then use supporting blueprints:
 - Shared category modal/card UI reused across pages
 - Debt payment flow that records both an expense and a debt payment entry
 - Debt listing page with edit route/modal
+- **NEW:** Saving goal payment flow (creates expense + saving transaction entry)
+- **NEW:** Dynamic saving goal current amount calculation from transaction history
+- **NEW:** Saving goal and debt progress/current amount calculations in persistence layer (repository/UOW)
 - Server-side sessions and MySQL persistence
 
 ## In Progress / Not Fully Wired
 
 - Standalone category blueprint (`app/routes/r_category.py`) exists but is not registered in app factory yet
 - Debt delete flow is not implemented yet
-- Savings goals pages/routes are not exposed yet
+- Savings goals list/create/edit/delete pages/routes are not fully exposed yet (payment flow exists)
 - Reports and analytics pages are still planned
 - Automated tests are not set up yet
 
 ## Recent Changelog
+
+### 2026-04-16
+- **Moved saving goal progress calculation to persistence layer** (repository/UOW)
+- **Moved debt current amount/progress calculation to persistence layer** (repository/UOW)
+- **Fixed saving goal payment bug** where expense_id was None; now sets after expense save
+
+### 2026-04-15
+- **Added saving goal payment orchestration** (`AddSavingGoalPaymentUseCase`)
+  - Creates expense record for saving goal deposits
+  - Links expense to saving goal via `SavingTransactions`
+  - Auto-generates "Saving Goal Payment to {goal name}" category
+- **Enhanced saving goal repositories** with dynamic current amount calculation from transactions
+  - `calculate_current_amount()` sums deposits (income) minus withdrawals (expenses)
+  - Supports multi-transaction tracking per goal
+- **Added transaction validation** for saving transactions
+- **Added route** for `/add_saving_goal_payment/<goal_id>` (POST)
+- **Added saving goal details page** with progress visualization and payment history
+- **Added saving goal payment modal** for adding deposits to goals
+- **Enhanced saving goals table** with progress bars and status indicators
+- All code compiles, syntax validated, app imports successfully
 
 ### 2026-02-18
 - Added category description support end-to-end (model, policy, repository, UI)

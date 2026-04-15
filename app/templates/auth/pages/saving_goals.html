@@ -15,35 +15,34 @@
         <!-- Begin Page Content -->
         <div class="container-fluid">
             <!-- Modal -->
-            {% include 'auth/modals/add_debt.html' %}
-            {% include 'auth/modals/edit_debt.html' %}
             
             <!-- Page Heading -->
-            <h1 class="h3 mb-2 text-gray-800">My Debts</h1>
+            <h1 class="h3 mb-2 text-gray-800">My Saving Goals</h1>
             <p class="mb-4">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                Track your savings progress and achieve your financial goals. Set targets, monitor progress, and stay motivated on your path to financial success.
             </p>
 
             <!-- Button trigger modal -->
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addDebtModal">
-            Add Debt
-            </button>
+            <!-- TODO: Uncomment when modal is ready -->
+            <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSavingGoalModal">
+            Add Saving Goal
+            </button> -->
             {% if error_message %}
                 <label for="validationError" class="form-label text-danger">
                     {{ error_message }}
                 </label>
             {% endif %}
-            
+
             <!-- DataTales Example -->
-            {% include 'auth/tables/debts_table.html' %}
+            {% include 'auth/tables/saving_goals_table.html' %}
 
         </div>
         <!-- /.container-fluid -->
 
-        <script src="{{ url_for('static', filename='js/pages/edit-form-helper.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/pages/debts-page.js') }}"></script>
+        <!-- TODO: Add JavaScript when modals are ready -->
+        <!-- <script src="{{ url_for('static', filename='js/pages/edit-form-helper.js') }}"></script> -->
+        <!-- <script src="{{ url_for('static', filename='js/pages/saving-goals-page.js') }}"></script> -->
 
     </div>
         <!-- End of Main Content -->
 {% endblock %}
-

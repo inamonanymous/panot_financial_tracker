@@ -56,3 +56,30 @@ class SavingGoalRepository(Repository[SavingGoal]):
             List of active saving goals
         """
         pass
+    
+    @abstractmethod
+    def calculate_current_amount(self, goal_id: int) -> float:
+        """
+        Calculate current amount for a saving goal (deposits - withdrawals).
+        
+        Args:
+            goal_id: Goal ID
+        
+        Returns:
+            Current amount as float
+        """
+        pass
+    
+    @abstractmethod
+    def calculate_progress_percentage(self, goal_id: int, target_amount: float) -> float:
+        """
+        Calculate progress percentage towards goal.
+        
+        Args:
+            goal_id: Goal ID
+            target_amount: Target amount
+        
+        Returns:
+            Progress percentage (0-100)
+        """
+        pass

@@ -1,0 +1,68 @@
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">My Saving Goals</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Target Amount</th>
+                        <th>Current Amount</th>
+                        <th>Progress</th>
+                        <th>Target Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Name</th>
+                        <th>Target Amount</th>
+                        <th>Current Amount</th>
+                        <th>Progress</th>
+                        <th>Target Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for goal in all_saving_goals %}
+                        <tr>
+                            <td>{{ goal.name }}</td>
+                            <td>${{ "%.2f"|format(goal.target_amount) }}</td>
+                            <td>${{ "%.2f"|format(goal.current_amount) }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="mr-2">{{ "%.1f"|format(goal.get_progress_percentage()) }}%</span>
+                                    <div class="progress" style="width: 60px; height: 6px;">
+                                        <div class="progress-bar bg-success" role="progressbar"
+                                             style="width: {{ goal.get_progress_percentage() }}%"
+                                             aria-valuenow="{{ goal.get_progress_percentage() }}"
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ goal.target_date.strftime('%b %d, %Y') if goal.target_date else 'N/A' }}</td>
+                            <td>
+                                {% if goal.is_completed() %}
+                                    <span class="badge badge-success">Completed</span>
+                                {% elif goal.is_overdue() %}
+                                    <span class="badge badge-danger">Overdue</span>
+                                {% else %}
+                                    <span class="badge badge-info">In Progress</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('saving_goals.saving_goal_details_page', goal_id=goal.id) }}" class="btn btn-sm btn-info" title="View goal details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

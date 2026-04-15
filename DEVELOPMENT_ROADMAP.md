@@ -1,48 +1,50 @@
 # Finance Project — Development Roadmap & Task List
 
-**Last Updated:** February 18, 2026
+**Last Updated:** April 16, 2026
 
 ---
 
 ## Current Snapshot
 
-### ✅ Completed (Implemented and Working)
-- [x] User registration, login, logout
-- [x] Dashboard totals reporting
-- [x] Income create + list + edit
-- [x] Expense create + list + edit
-- [x] Category create + edit for income and expense contexts
-- [x] Shared category card/modal UI reused across income and expense pages
-- [x] Debt payment flow (creates expense + debt payment record)
-- [x] Debt list + edit page + use case
-- [x] `name` support added to income and expense models
-- [x] Validation now requires both:
-  - Income: `name` and `source`
-  - Expense: `name` and `payee`
+### ✅ Recently Completed (Implemented and Working)
+- [x] Saving goal progress/current amount calculation moved to persistence layer (repository/UOW)
+- [x] Debt current amount/progress calculation moved to persistence layer (repository/UOW)
+- [x] Fixed saving goal payment expense ID bug (expense_id now set after expense save)
 
 ### 🔄 In Progress
 - [ ] Cleanup/refactor pass for duplicated table/modal JS (optional quality task)
 - [ ] Consistent timestamp/date formatting in all table views
+- [ ] Saving goal list/create/edit/delete pages and routes (payment infrastructure complete)
 
 ---
 
 ## Phase 2: Near-Term Priorities
 
-### 1) Delete Flows for Transactions
+### 1) Saving Goals CRUD & UI Completion
+**Priority:** High (Payment infrastructure exists, UI/CRUD missing)
+
+- Create `CreateSavingGoalUseCase` and route
+- Create `EditSavingGoalUseCase` and route  
+- Create `DeleteSavingGoalUseCase` with safety checks
+- Build saving goals list page with progress indicators
+- Integrate payment flow button into goal view
+- Test transaction tracking across multiple payments
+
+### 2) Delete Flows for Transactions
 **Priority:** High
 
 - Add `DeleteIncomeUseCase` and route/action
 - Add `DeleteExpenseUseCase` and route/action
 - Add delete confirmation modal and in-use safety checks
 
-### 2) Category Lifecycle Completion
+### 3) Category Lifecycle Completion
 **Priority:** High
 
 - Add category delete use case and route
 - Prevent deletion when referenced by income/expense
 - Show clear user-facing error messaging
 
-### 3) Debt Management Module (CRUD)
+### 4) Debt Management Module (CRUD)
 **Priority:** Medium
 
 - Add debt create/list/edit/delete routes + use-cases (delete remains pending)
@@ -51,17 +53,7 @@
 
 ---
 
-## Phase 3: Savings Goals Module
-
-**Priority:** Medium
-
-- Implement saving goal CRUD use-cases and routes
-- Implement saving transaction create flow
-- Add savings page with progress and timeline indicators
-
----
-
-## Phase 4: Reporting & Analytics
+## Phase 3: Reporting & Analytics
 
 **Priority:** Medium-Low
 
@@ -71,7 +63,7 @@
 
 ---
 
-## Phase 5: Optional Enhancements
+## Phase 4: Optional Enhancements
 
 **Priority:** Low
 
@@ -82,10 +74,10 @@
 
 ---
 
-## Recommended Next Session Start (Tomorrow)
+## Recommended Next Session Start
 
-1. Implement transaction delete flow (income + expense)
-2. Add category delete with protection checks
-3. Start debt CRUD pages/routes
+1. Build saving goals list page and CRUD (create/edit/delete) routes
+2. Complete transaction delete flows (income + expense)
+3. Add category delete with protection checks
 
-This order keeps momentum on core CRUD completeness before moving into analytics.
+This order finalizes savings goals (critical path) while maintaining momentum on core CRUD completeness.
