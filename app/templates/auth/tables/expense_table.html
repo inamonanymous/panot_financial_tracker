@@ -37,21 +37,9 @@
                             <td>{{ i.expense_date }}</td>
                             <td>{{ i.payment_method }}</td>
                             <td>
-                                <a
-                                    class="link-opacity-50-hover js-edit-expense-btn"
-                                    href="#"
-                                    data-toggle="modal"
-                                    data-target="#editExpenseModal"
-                                    data-expense-api-url="{{ url_for('expense.get_expense_api', expense_id=i.id) }}"
-                                    data-expense-update-url="{{ url_for('expense.update_expense_route', expense_id=i.id) }}"
-                                >
-                                    <i class="bi bi-pencil" style="color: cornflowerblue;"></i>
+                                <a href="{{ url_for('expense.expense_details_page', expense_id=i.id) }}" class="btn btn-sm btn-info" title="View expense details">
+                                    <i class="bi bi-eye"></i> View
                                 </a>
-                                <form method="POST" action="{{ url_for('expense.delete_expense_route', expense_id=i.id) }}" class="d-inline">
-                                    <button type="submit" class="btn btn-link p-0 border-0" onclick="return confirm('Delete this expense record?');" aria-label="Delete expense">
-                                        <i class="bi bi-trash" style="color: #dc3545;"></i>
-                                    </button>
-                                </form>
                             </td>
                         </tr>
                     {% endfor %}

@@ -23,7 +23,7 @@ def debts_page():
     use_case = GetUserDebtsUseCase(UOW)
     all_debts = use_case.execute(user.id)
 
-    return render_template("auth/pages/debts.html", 
+    return render_template("auth/pages/debts/index.html", 
                          user=user, 
                          all_debts=all_debts,
                          error_message=error_message)
@@ -36,13 +36,13 @@ def debt_details_page(debt_id: int):
     try:
         use_case = GetDebtDetailsUseCase(UOW)
         data = use_case.execute(debt_id, user.id)
-        return render_template("auth/pages/debt_details.html", 
+        return render_template("auth/pages/debts/details.html", 
                              user=user, 
                              debt=data['debt'],
                              payments=data['payments'],
                              error_message=error_message)
     except Exception as e:
-        return render_template("auth/pages/debts.html", user=user, error_message=str(e))
+        return render_template("auth/pages/debts/index.html", user=user, error_message=str(e))
 
 @debts.route('/insert_debt', methods=['POST'])
 @require_user_session
