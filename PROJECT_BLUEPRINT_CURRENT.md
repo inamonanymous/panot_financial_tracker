@@ -1,6 +1,6 @@
 # Finance Project Blueprint (Current + Planned)
 
-Last Updated: 2026-04-16
+Last Updated: 2026-04-22
 Project Type: Web App (Flask + SQLAlchemy + Jinja + MySQL)
 Architecture: Route → Use Case → Policy/Domain Service → Repository → ORM Model
 

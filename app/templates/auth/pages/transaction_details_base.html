@@ -1,0 +1,171 @@
+{% extends 'auth/layout.html' %}
+{% block body %}
+    <!-- Sidebar -->
+    {% include 'auth/partials/sidebar.html' %}
+    <!-- End of Sidebar -->
+
+    <!-- Main Content -->
+    <div id="content">
+        <!-- Topbar -->
+        {% include 'auth/partials/topbar.html' %}
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+            <!-- Modals -->
+            {% block details_modal %}{% endblock %}
+            
+            <!-- Page Heading and Back Button -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800">{{ page_title }} Details</h1>
+                    <p class="text-muted small">{{ record.name }} - {{ record_subtitle }}</p>
+                </div>
+                <a href="{{ back_url }}" class="btn btn-secondary btn-sm">
+                    <i class="bi bi-arrow-left"></i> Back to {{ page_title }}s
+                </a>
+            </div>
+
+            {% if error_message %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i> {{ error_message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+
+            <!-- Main Row -->
+            <div class="row">
+                <!-- Left Column - Details -->
+                <div class="col-lg-8">
+                    <!-- Information Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card shadow mb-3">
+                                <div class="card-body">
+                                    <div class="text-muted small font-weight-bold text-uppercase mb-2">Amount</div>
+                                    <div class="h3 text-primary mb-0">₱{{ "%.2f"|format(record.amount) }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card shadow mb-3">
+                                <div class="card-body">
+                                    <div class="text-muted small font-weight-bold text-uppercase mb-2">Category</div>
+                                    <div class="h3 mb-0">{{ category.name if category else 'Unknown' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card shadow mb-3">
+                                <div class="card-body">
+                                    <div class="text-muted small font-weight-bold text-uppercase mb-2">{{ subtitle_label }}</div>
+                                    <div class="h3 mb-0">{{ record_subtitle }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card shadow mb-3">
+                                <div class="card-body">
+                                    <div class="text-muted small font-weight-bold text-uppercase mb-2">Payment Method</div>
+                                    <div class="h3 mb-0">{{ record.payment_method|title if record.payment_method else 'N/A' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card shadow mb-3">
+                                <div class="card-body">
+                                    <div class="text-muted small font-weight-bold text-uppercase mb-2">{{ date_label }}</div>
+                                    <div class="h3 mb-0">{{ record_date_formatted }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card shadow mb-3">
+                                <div class="card-body">
+                                    <div class="text-muted small font-weight-bold text-uppercase mb-2">Created On</div>
+                                    <div class="small mb-0">{{ record.created_at.strftime('%b %d, %Y') if record.created_at else 'N/A' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Information -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">{{ page_title }} Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>Name:</strong> {{ record.name }}</p>
+                                    <p class="mb-2"><strong>{{ subtitle_label }}:</strong> {{ record_subtitle }}</p>
+                                    <p class="mb-0"><strong>Amount:</strong> ₱{{ "%.2f"|format(record.amount) }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>Category:</strong> {{ category.name if category else 'Unknown' }}</p>
+                                    <p class="mb-2"><strong>Payment Method:</strong> {{ record.payment_method|title if record.payment_method else 'N/A' }}</p>
+                                    <p class="mb-0"><strong>{{ date_label }}:</strong> {{ record_date_formatted }}</p>
+                                </div>
+                            </div>
+                            {% if record.remarks %}
+                                <div class="mt-3">
+                                    <strong>Remarks:</strong>
+                                    <p class="mb-0">{{ record.remarks }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Summary and Actions -->
+                <div class="col-lg-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 bg-primary">
+                            <h6 class="m-0 font-weight-bold text-white">{{ page_title }} Summary</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="small text-muted">Amount</div>
+                                <div class="h5 text-primary mb-0">₱{{ "%.2f"|format(record.amount) }}</div>
+                            </div>
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="small text-muted">Category</div>
+                                <div class="h5 mb-0">{{ category.name if category else 'Unknown' }}</div>
+                            </div>
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="small text-muted">{{ subtitle_label }}</div>
+                                <div class="h5 mb-0">{{ record_subtitle }}</div>
+                            </div>
+                            <div class="mb-0">
+                                <div class="small text-muted">{{ date_label }}</div>
+                                <div class="mt-1">
+                                    <span class="badge badge-info">{{ record_date_formatted }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                        </div>
+                        <div class="card-body">
+                            {% block quick_actions %}{% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.container-fluid -->
+
+        <!-- Footer -->
+        {% include 'auth/partials/footer.html' %}
+        <!-- End of Footer -->
+
+        <script src="{{ url_for('static', filename='js/pages/edit-form-helper.js') }}"></script>
+        </div>
+        <!-- End of Main Content -->
+{% endblock %}

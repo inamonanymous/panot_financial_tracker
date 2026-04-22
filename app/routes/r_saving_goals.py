@@ -24,7 +24,7 @@ def saving_goals_page():
     use_case = GetUserSavingGoalsUseCase(UOW)
     all_saving_goals = use_case.execute(user.id)
 
-    return render_template("auth/pages/saving_goals.html",
+    return render_template("auth/pages/saving_goals/index.html",
                          user=user,
                          all_saving_goals=all_saving_goals,
                          error_message=error_message)
@@ -71,7 +71,7 @@ def saving_goal_details_page(goal_id: int):
     except Exception:
         return redirect(url_for('saving_goals.saving_goals_page', error_message="Saving goal not found"))
     
-    return render_template("auth/pages/saving_goal_details.html",
+    return render_template("auth/pages/saving_goals/details.html",
                          user=user,
                          goal=data['goal'],
                          payments=data['payments'],

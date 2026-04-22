@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for
 from app.use_cases.category.create_category import CreateCategoryUseCase
 from app.routes.functions import require_user_session, get_current_user, redirect_on_action
 from app.use_cases.income.get_user_income import GetUserIncomeUseCase
+from app.use_cases.income.get_income_details import GetIncomeDetailsUseCase
 from app.use_cases.income.create_income import CreateIncomeUseCase
 from app.use_cases.income.edit_income import EditIncomeUseCase
 from app.use_cases.income.delete_income import DeleteIncomeUseCase
@@ -132,8 +133,33 @@ def income_page():
     cat_use_case = GetUserCategoriesUseCase(UOW)
     user_categories = cat_use_case.execute(user.id, category_type="income")
 
-    return render_template("auth/pages/income.html", 
+    return render_template("auth/pages/income/index.html", 
                          user=user, 
                          all_income=all_income,
                          user_categories=user_categories,
-                         error_message=error_message)# Pass to template
+                         error_message=error_message)
+
+
+@income.route('/income_details/<int:income_id>')
+@require_user_session
+def income_details_page(income_id: int):
+    user = get_current_user()
+    error_message = request.args.get("error_message")
+
+    use_case = GetIncomeDetailsUseCase(UOW)
+    try:
+        data = use_case.execute(income_id, user.id)
+    except Exception:
+        return redirect(url_for('income.income_page', error_message="Income not found"))
+    
+    return render_template("auth/pages/income/details.html",
+                         user=user,
+                         record=data['income'],
+                         category=data['category'],
+                         page_title='Income',
+                         record_subtitle=data['income'].source,
+                         subtitle_label='Source',
+                         date_label='Received Date',
+                         record_date_formatted=data['income'].received_date.strftime('%b %d, %Y') if data['income'].received_date else 'N/A',
+                         back_url=url_for('income.income_page'),
+                         error_message=error_message)

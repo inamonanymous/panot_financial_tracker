@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for
 from app.use_cases.expense.create_expense import CreateExpenseUseCase
 from app.use_cases.expense.get_user_expense import GetUserExpenseUseCase
+from app.use_cases.expense.get_expense_details import GetExpenseDetailsUseCase
 from app.use_cases.expense.edit_expense import EditExpenseUseCase
 from app.use_cases.expense.delete_expense import DeleteExpenseUseCase
 from app.use_cases.category.create_category import CreateCategoryUseCase
@@ -128,8 +129,33 @@ def expense_page():
     cat_use_case = GetUserCategoriesUseCase(UOW)
     user_categories = cat_use_case.execute(user.id, category_type="expense")
 
-    return render_template("auth/pages/expense.html", 
+    return render_template("auth/pages/expense/index.html", 
                          user=user, 
                          expense=all_expense,
                          user_categories=user_categories,
+                         error_message=error_message)
+
+
+@expense.route('/expense_details/<int:expense_id>')
+@require_user_session
+def expense_details_page(expense_id: int):
+    user = get_current_user()
+    error_message = request.args.get("error_message")
+
+    use_case = GetExpenseDetailsUseCase(UOW)
+    try:
+        data = use_case.execute(expense_id, user.id)
+    except Exception:
+        return redirect(url_for('expense.expense_page', error_message="Expense not found"))
+    
+    return render_template("auth/pages/expense/details.html",
+                         user=user,
+                         record=data['expense'],
+                         category=data['category'],
+                         page_title='Expense',
+                         record_subtitle=data['expense'].payee,
+                         subtitle_label='Payee',
+                         date_label='Expense Date',
+                         record_date_formatted=data['expense'].expense_date.strftime('%b %d, %Y') if data['expense'].expense_date else 'N/A',
+                         back_url=url_for('expense.expense_page'),
                          error_message=error_message)
